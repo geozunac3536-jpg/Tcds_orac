@@ -14,3 +14,9 @@ A diferencia de los enfoques probabilísticos tradicionales, MUSE introduce una 
 ```bash
 pip install .
 ```
+## Licencia
+
+Este proyecto se distribuye bajo una **Licencia Dual TCDS**:
+uso libre para investigación y evaluación técnica.
+El uso comercial requiere licencia explícita del autor.
+Ver archivo [LICENSE](LICENSE).
