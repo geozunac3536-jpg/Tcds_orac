@@ -3,29 +3,29 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TCDS — Reloj Causal Tesseract</title>
-  <meta name="description" content="Reloj Causal TCDS: tiempo normal vs tiempo causal, coherencia Σ y veto entrópico en vivo, visualizado como un tesseract hiperdimensional con controles de rotación." />
-  <meta name="theme-color" content="#070a10" />
+  <title>TCDS — Reloj Causal Tesseract v2.0</title>
+  <meta name="description" content="Reloj Causal TCDS: Visualización hiperdimensional de coherencia Σ y veto entrópico." />
+  <meta name="theme-color" content="#06070b" />
 
   <style>
     :root{
-      --bg:#06070b;
-      --bg2:#0b1020;
-      --txt:#eaf0ff;
-      --mut: rgba(234,240,255,.72);
-      --dim: rgba(234,240,255,.55);
-      --stroke: rgba(255,255,255,.12);
-      --glass: rgba(255,255,255,.06);
-      --glass2: rgba(255,255,255,.035);
-      --accent:#77a6ff;
-      --a2:#91ffe0;
-      --warn:#ffd37a;
-      --ok:#8effa1;
-      --bad:#ff7aa2;
-      --shadow: 0 18px 70px rgba(0,0,0,.55);
-      --r: 22px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
+      --bg: #050608;
+      --bg2: #0a0e17;
+      --txt: #eaf0ff;
+      --mut: rgba(234,240,255,.65);
+      --dim: rgba(234,240,255,.45);
+      --stroke: rgba(255,255,255,.08);
+      --glass: rgba(255,255,255,.04);
+      --glass2: rgba(20,20,25,.02);
+      --accent: #77a6ff;
+      --a2: #64ffda;
+      --warn: #ffcc66;
+      --ok: #66ff99;
+      --bad: #ff5c8d;
+      --shadow: 0 20px 80px rgba(0,0,0,.6);
+      --r: 16px;
+      --mono: "SF Mono", "Fira Code", Consolas, monospace;
+      --sans: "Inter", system-ui, sans-serif;
     }
 
     *{box-sizing:border-box}
@@ -34,875 +34,587 @@
       margin:0;
       color:var(--txt);
       font-family:var(--sans);
-      background:
-        radial-gradient(1200px 900px at 12% -12%, rgba(119,166,255,.22), transparent 60%),
-        radial-gradient(1100px 800px at 88% 8%, rgba(145,255,224,.16), transparent 58%),
-        radial-gradient(900px 700px at 55% 112%, rgba(255,122,162,.10), transparent 58%),
-        linear-gradient(180deg, var(--bg), var(--bg2));
+      background: var(--bg);
       overflow-x:hidden;
     }
 
-    .wrap{max-width:1200px;margin:0 auto;padding:34px 18px 90px}
+    /* Fondo sutil */
+    body::before {
+      content: "";
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(119,166,255,0.08), transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(100,255,218,0.06), transparent 40%);
+      pointer-events: none;
+      z-index: -1;
+    }
 
+    /* Scanline effect */
+    body::after {
+      content: " ";
+      display: block;
+      position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+      background-size: 100% 4px;
+      z-index: 999;
+      pointer-events: none;
+      opacity: 0.3;
+    }
+
+    .wrap{max-width:1280px;margin:0 auto;padding:20px; display: flex; flex-direction: column; height: 100vh;}
+
+    /* Header Compacto */
     header{
-      display:flex;gap:16px;align-items:center;justify-content:space-between;
-      padding:18px 18px;
+      flex: 0 0 auto;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:12px 20px;
       border:1px solid var(--stroke);
-      border-radius:var(--r);
-      background: linear-gradient(180deg, var(--glass), var(--glass2));
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
+      border-radius:12px;
+      background: rgba(10,12,16,0.6);
+      backdrop-filter: blur(10px);
+      margin-bottom: 16px;
     }
-
-    .brand{display:flex;gap:14px;align-items:center}
-    .sig{
-      width:44px;height:44px;border-radius:14px;
-      background: radial-gradient(circle at 30% 30%, rgba(119,166,255,.95), rgba(145,255,224,.55) 44%, rgba(255,255,255,.07) 72%);
-      border:1px solid rgba(255,255,255,.18);
-      box-shadow: 0 0 0 7px rgba(119,166,255,.08);
-      position:relative;
+    .brand h1{margin:0; font-size:16px; font-weight:600; letter-spacing:1px; color: var(--txt);}
+    .brand span {color: var(--accent);}
+    
+    .nav a {
+      color: var(--mut); text-decoration: none; font-size: 12px; font-family: var(--mono);
+      margin-left: 15px; transition: color 0.2s;
     }
-    .sig:after{
-      content:"";
-      position:absolute;inset:-22px;
-      background: radial-gradient(circle, rgba(119,166,255,.12), transparent 60%);
-      filter: blur(2px);
-      pointer-events:none;
-    }
+    .nav a:hover {color: var(--a2);}
 
-    h1{margin:0;font-size:18px;letter-spacing:.2px}
-    .sub{margin-top:4px;color:var(--mut);font-size:13px;line-height:1.35}
-
-    .nav{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .btn{
-      display:inline-flex;gap:8px;align-items:center;
-      padding:10px 12px;border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.04);
-      color:var(--txt);text-decoration:none;font-size:13px;
-      transition: transform .15s ease, background .15s ease, border .15s ease;
-      user-select:none;
-    }
-    .btn:hover{transform: translateY(-1px);background: rgba(255,255,255,.07);border-color: rgba(255,255,255,.22)}
-    .btn .dot{width:8px;height:8px;border-radius:99px;background:var(--accent)}
-    .btn.small{padding:8px 10px;border-radius:999px;font-family:var(--mono);font-size:12px}
-
+    /* Grid Layout */
     .grid{
-      margin-top:16px;
+      flex: 1 1 auto;
       display:grid;
-      grid-template-columns: 1.25fr .75fr;
+      grid-template-columns: 1fr 320px;
       gap:16px;
-      align-items:stretch;
+      min-height: 0; /* Para que el scroll funcione dentro si es necesario */
     }
-    @media(max-width:980px){
-      .grid{grid-template-columns:1fr}
-      header{flex-direction:column;align-items:stretch}
-      .nav{justify-content:flex-start}
-    }
+    @media(max-width:900px){ .grid{grid-template-columns:1fr; grid-template-rows: 1fr auto;} }
 
-    .card{
-      border:1px solid var(--stroke);
-      border-radius:var(--r);
-      background: linear-gradient(180deg, var(--glass), var(--glass2));
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      overflow:hidden;
-    }
-
+    /* Canvas Container */
     .clockWrap{
       position:relative;
-      min-height:520px;
+      border:1px solid var(--stroke);
+      border-radius: var(--r);
+      background: #000; /* Pure black for contrast */
+      overflow:hidden;
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
     }
-    @media(max-width:980px){
-      .clockWrap{min-height:520px}
+    canvas { display:block; width:100%; height:100%; }
+
+    /* HUD Overlay */
+    .overlay {
+      position:absolute; inset:0; pointer-events:none;
+      padding:24px;
+      display:flex; flex-direction:column; justify-content:space-between;
     }
 
-    canvas#clock{
-      width:100%;
-      height:100%;
-      display:block;
+    .metrics-row {
+      display: flex; gap: 20px; align-items: flex-start;
     }
 
-    .overlay{
-      position:absolute;inset:0;
-      pointer-events:none;
-      padding:18px;
-      display:flex;flex-direction:column;justify-content:space-between;
+    .metric-group {
+      background: rgba(0,0,0,0.6);
+      border: 1px solid var(--stroke);
+      padding: 10px 14px;
+      border-radius: 8px;
+      backdrop-filter: blur(4px);
     }
+    .metric-label { font-family: var(--mono); font-size: 10px; color: var(--mut); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .metric-val { font-family: var(--mono); font-size: 18px; color: var(--a2); text-shadow: 0 0 10px rgba(100,255,218,0.3); }
+    .metric-val.giant { font-size: 32px; color: var(--txt); }
+    
+    .status-pill {
+      font-family: var(--mono); font-size: 11px;
+      padding: 4px 10px; border-radius: 99px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--stroke);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mut); box-shadow: 0 0 5px var(--mut); }
+    .dot.active { background: var(--ok); box-shadow: 0 0 8px var(--ok); animation: blink 2s infinite; }
+    .dot.warn { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+    .dot.bad { background: var(--bad); box-shadow: 0 0 8px var(--bad); animation: blink 0.5s infinite; }
 
-    .kicker{
-      pointer-events:none;
-      display:inline-flex;gap:10px;align-items:center;
-      font-family:var(--mono);font-size:12px;color:var(--dim);
-      padding:8px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.03);
-      width:max-content;
-    }
-    .kicker .pulse{
-      width:10px;height:10px;border-radius:999px;
-      background: radial-gradient(circle at 30% 30%, var(--a2), rgba(145,255,224,.2) 60%, transparent 72%);
-      box-shadow: 0 0 0 7px rgba(145,255,224,.08);
-    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    .hud{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-      align-items:end;
+    /* Sidebar */
+    .side {
+      display: flex; flex-direction: column; gap: 12px;
+      overflow-y: auto;
     }
-    @media(max-width:620px){ .hud{grid-template-columns:1fr} }
+    .panel {
+      background: rgba(15,18,24,0.6);
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    
+    h2 { font-size: 12px; font-family: var(--mono); text-transform: uppercase; color: var(--mut); margin: 0 0 12px 0; border-bottom: 1px solid var(--stroke); padding-bottom: 8px; }
 
-    .panel{
-      pointer-events:auto;
-      padding:14px 14px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.22);
+    .ctrl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; color: var(--txt); }
+    
+    /* Custom Toggle */
+    .toggle {
+      position: relative; width: 36px; height: 18px; background: rgba(255,255,255,0.1); border-radius: 20px; cursor: pointer; transition: 0.3s;
     }
+    .toggle::after {
+      content:''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: 0.3s;
+    }
+    .toggle.on { background: rgba(119,166,255,0.4); }
+    .toggle.on::after { left: 20px; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
 
-    .row{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
-    .lab{font-family:var(--mono);font-size:12px;color:var(--dim)}
-    .val{font-family:var(--mono);font-size:12px;color:var(--txt)}
-    .big{
-      margin-top:8px;
-      font-size:28px;
-      letter-spacing:.2px;
-      font-weight:650;
-      font-family:var(--mono);
+    .action-btn {
+      width: 100%; padding: 10px; margin-top: 8px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--stroke);
+      color: var(--txt); font-family: var(--mono); font-size: 11px;
+      border-radius: 6px; cursor: pointer; transition: 0.2s;
+      text-transform: uppercase; letter-spacing: 1px;
     }
-    .badge{
-      display:inline-flex;gap:8px;align-items:center;
-      font-family:var(--mono);font-size:12px;
-      padding:8px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.03);
-      margin-top:10px;
-      width:max-content;
-    }
-    .badge .s{width:9px;height:9px;border-radius:99px;background:var(--ok)}
-    .badge.warn .s{background:var(--warn)}
-    .badge.bad .s{background:var(--bad)}
+    .action-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); }
+    .action-btn.danger { border-color: rgba(255,92,141,0.4); color: #ffadad; }
+    .action-btn.danger:hover { background: rgba(255,92,141,0.15); box-shadow: 0 0 15px rgba(255,92,141,0.2); }
 
-    .side{
-      padding:16px;
+    .log-container {
+      flex: 1; min-height: 150px;
+      background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px;
+      font-family: var(--mono); font-size: 11px; color: var(--mut);
+      overflow-y: auto; scrollbar-width: thin;
     }
+    .log-entry { margin-bottom: 4px; line-height: 1.4; }
+    .log-time { color: var(--dim); margin-right: 6px; }
+    .log-txt.ok { color: var(--ok); }
+    .log-txt.bad { color: var(--bad); }
+    .log-txt.info { color: var(--accent); }
 
-    .side h2{
-      margin:0 0 10px;
-      font-size:14px;
-      letter-spacing:.2px;
-      color:rgba(234,240,255,.92);
-    }
-
-    .side h3{
-      margin:0 0 6px;
-      font-size:13px;
-      color:var(--mut);
-    }
-
-    .tiles{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-    }
-
-    .tile{
-      padding:14px 14px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.22);
-    }
-    .tile p{margin:0;color:var(--mut);font-size:13px;line-height:1.5}
-    .tagrow{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
-    .tag{
-      font-family:var(--mono);
-      font-size:12px;color:rgba(234,240,255,.76);
-      padding:7px 9px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.03);
-    }
-
-    .controls{
-      display:flex;gap:10px;flex-wrap:wrap;
-      margin-top:12px;
-    }
-    .switch{
-      pointer-events:auto;
-      display:flex;gap:10px;align-items:center;
-      padding:10px 12px;border-radius:16px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.03);
-      font-family:var(--mono);font-size:12px;color:rgba(234,240,255,.8);
-      user-select:none;
-      cursor:pointer;
-    }
-    .knob{
-      width:38px;height:20px;border-radius:999px;
-      background: rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.14);
-      position:relative;
-    }
-    .knob:after{
-      content:"";
-      position:absolute;top:1px;left:2px;
-      width:16px;height:16px;border-radius:99px;
-      background: rgba(234,240,255,.85);
-      box-shadow: 0 10px 25px rgba(0,0,0,.35);
-      transition: transform .18s ease, background .18s ease;
-    }
-    .switch.on .knob{background: rgba(145,255,224,.15);border-color: rgba(145,255,224,.26)}
-    .switch.on .knob:after{transform: translateX(18px);background: rgba(145,255,224,.9)}
-
-    .slider{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      font-family:var(--mono);
-      font-size:12px;
-      color:var(--dim);
-    }
-    .slider input[type="range"]{
-      width:100%;
-      accent-color:var(--a2);
-    }
-    .slider .val{
-      color:var(--txt);
-      text-align:right;
-    }
-
-    .log{
-      margin-top:12px;
-      font-family:var(--mono);
-      font-size:12px;
-      color:rgba(234,240,255,.75);
-      background: rgba(0,0,0,.22);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:18px;
-      padding:12px;
-      max-height:210px;
-      overflow:auto;
-      line-height:1.55;
-    }
-    .log .ok{color:rgba(142,255,161,.95)}
-    .log .bad{color:rgba(255,122,162,.95)}
-    .log .warn{color:rgba(255,211,122,.95)}
-
-    footer{
-      margin-top:16px;
-      color:var(--dim);
-      font-size:12px;
-      display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;
-    }
-    .sep{opacity:.35}
   </style>
 </head>
 
 <body>
   <div class="wrap">
-
     <header>
       <div class="brand">
-        <div class="sig" aria-hidden="true"></div>
-        <div>
-          <h1>TCDS — Reloj Causal Tesseract</h1>
-          <div class="sub">Tiempo normal <span class="sep">·</span> Tiempo causal <span class="sep">·</span> coherencia Σ y veto entrópico (ΔH) en vivo, proyectado en hiperespacio</div>
-        </div>
+        <h1>TCDS <span>//</span> CAUSAL TESSERACT</h1>
       </div>
-
       <nav class="nav">
-  <a class="btn" href="./"><span class="dot"></span>Home</a>
-  <a class="btn" href="./#docs"><span class="dot" style="background:var(--a2)"></span>Docs</a>
-  <a class="btn" href="https://github.com/geozunac3536-jpg" target="_blank" rel="noopener">
-    <span class="dot" style="background:var(--warn)"></span>GitHub
-  </a>
-  <a class="btn" href="mailto:genarocarrasco.ozuna@gmail.com">
-    <span class="dot" style="background:var(--ok)"></span>Contacto
-  </a>
+        <a href="#">DOCS</a>
+        <a href="#">GITHUB</a>
+        <a href="#">STATUS</a>
       </nav>
     </header>
 
     <div class="grid">
-
-      <!-- CLOCK -->
-      <section class="card clockWrap">
+      <section class="clockWrap">
         <canvas id="clock"></canvas>
-
+        
         <div class="overlay">
-          <div class="kicker"><span class="pulse"></span> Q·Σ = φ · reloj causal con proyección tesseract hiperdimensional</div>
-
-          <div class="hud">
-            <div class="panel">
-              <div class="row">
-                <div class="lab">tM (tiempo estándar)</div>
-                <div class="val" id="tmLabel">—</div>
-              </div>
-              <div class="big" id="tmBig">--:--:--</div>
-              <div class="badge" id="stateBadge"><span class="s"></span><span id="stateText">ESCANEO</span></div>
+          <div class="metrics-row">
+            <div class="metric-group">
+              <div class="metric-label">Tiempo Causal (dΣ/dt)</div>
+              <div class="metric-val giant" id="tcDisplay">0.00</div>
             </div>
-
-            <div class="panel">
-              <div class="row">
-                <div class="lab">tC (tiempo causal)</div>
-                <div class="val" id="tcLabel">dΣ/dt</div>
-              </div>
-              <div class="big" id="tcBig">0.000</div>
-              <div class="row" style="margin-top:6px">
-                <div class="lab">LI</div><div class="val" id="liVal">0.000</div>
-              </div>
-              <div class="row">
-                <div class="lab">R</div><div class="val" id="rVal">0.000</div>
-              </div>
-              <div class="row">
-                <div class="lab">ΔH</div><div class="val" id="dhVal">0.000</div>
-              </div>
-              <div class="row">
-                <div class="lab">E-Veto</div><div class="val" id="vetoVal">—</div>
+            <div class="metric-group">
+              <div class="metric-label">Estado</div>
+              <div class="status-pill" id="statusPill">
+                <span class="dot" id="statusDot"></span>
+                <span id="statusText">INIT</span>
               </div>
             </div>
           </div>
 
+          <div class="metrics-row" style="margin-top: auto;">
+            <div class="metric-group">
+              <div class="metric-label">Σ-Coherence (LI)</div>
+              <div class="metric-val" id="liDisplay" style="color:var(--accent)">0.000</div>
+            </div>
+            <div class="metric-group">
+              <div class="metric-label">Entropía (ΔH)</div>
+              <div class="metric-val" id="dhDisplay" style="color:var(--warn)">0.000</div>
+            </div>
+            <div class="metric-group">
+              <div class="metric-label">Reproducibilidad (R)</div>
+              <div class="metric-val" id="rDisplay">0.000</div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- SIDE -->
-      <aside class="card side">
-        <h2>Panel de Control</h2>
-
-        <div class="tiles">
-          <div class="tile">
-            <p>
-              Esto es un <b>front-end</b> del Reloj Causal con visualización tesseract. Ahora está en modo
-              <b>simulación hiperdimensional</b> (para vértigo 4D). Lo puedes cablear a:
-              <span class="tagrow">
-                <span class="tag">outbox/*.json</span>
-                <span class="tag">events_feed.jsonl</span>
-                <span class="tag">oracle_decisions</span>
-              </span>
-            </p>
-
-            <div class="controls">
-              <div class="switch on" id="swWarp"><div class="knob"></div>WARP 4D</div>
-              <div class="switch on" id="swParticles"><div class="knob"></div>PARTÍCULAS</div>
-              <div class="switch on" id="swAuto"><div class="knob"></div>AUTO-ESCANEO</div>
-              <a class="btn small" id="btnShock" href="javascript:void(0)"><span class="dot" style="background:var(--bad)"></span>INJECT LOCK</a>
-              <a class="btn small" id="btnCalm" href="javascript:void(0)"><span class="dot" style="background:var(--a2)"></span>CALMA</a>
-            </div>
+      <aside class="side">
+        <div class="panel">
+          <h2>Configuración Hiperespacial</h2>
+          
+          <div class="ctrl-row">
+            <span>Motion Trails (Estelas)</span>
+            <div class="toggle on" id="togTrails"></div>
           </div>
-
-          <div class="tile">
-            <h3>Controles de Rotación</h3>
-            <div class="slider">
-              <label>Velocidad XW: <span class="val" id="speedXWVal">0.0005</span></label>
-              <input type="range" id="speedXW" min="-0.002" max="0.002" step="0.0001" value="0.0005">
-            </div>
-            <div class="slider">
-              <label>Velocidad YW: <span class="val" id="speedYWVal">0.0011</span></label>
-              <input type="range" id="speedYW" min="-0.002" max="0.002" step="0.0001" value="0.0011">
-            </div>
-            <div class="slider">
-              <label>Velocidad ZW: <span class="val" id="speedZWVal">0.0012</span></label>
-              <input type="range" id="speedZW" min="-0.002" max="0.002" step="0.0001" value="0.0012">
-            </div>
-            <a class="btn small" id="btnResetRot" href="javascript:void(0)"><span class="dot" style="background:var(--warn)"></span>RESET ROT</a>
+          <div class="ctrl-row">
+            <span>Aberración Cromática</span>
+            <div class="toggle on" id="togAbberation"></div>
           </div>
-
-          <div class="tile">
-            <h2 style="margin:0 0 10px;font-size:14px">Registro</h2>
-            <div class="log" id="log"></div>
+          <div class="ctrl-row">
+            <span>Partículas Cuánticas</span>
+            <div class="toggle on" id="togParticles"></div>
           </div>
-
-          <div class="tile">
-            <p>
-              <b>Lectura:</b> tC no es “otra hora”; es un <b>gradiente</b> (dΣ/dt).
-              Cuando el sistema entra en locking y ΔH cae, el tesseract <b>rota y distorsiona</b>:
-              el futuro deja de ser conjetura y se vuelve geometría hiperoperable.
-            </p>
+          <div class="ctrl-row">
+            <span>Auto-Oscilación</span>
+            <div class="toggle on" id="togAuto"></div>
           </div>
         </div>
 
-        <footer>
-          <div>© TCDS — Cromodinámica Sincrónica</div>
-          <div class="sep">—</div>
-          <div style="font-family:var(--mono)">Genaro Carrasco Ozuna · MX</div>
-        </footer>
+        <div class="panel">
+          <h2>Inyección Manual</h2>
+          <button class="action-btn danger" id="btnInject">⚡ Inyectar Lock (High Σ)</button>
+          <button class="action-btn" id="btnReset">↺ Resetear Entropía</button>
+        </div>
 
+        <div class="panel" style="flex:1; display:flex; flex-direction:column;">
+          <h2>Log de Eventos</h2>
+          <div class="log-container" id="logBox">
+            </div>
+        </div>
       </aside>
     </div>
-
   </div>
 
 <script>
-/* ============================================================
-   TCDS CAUSAL CLOCK — “TESERACTO HIPERDIMENSIONAL VÉRTIGO”
-   - Canvas: proyección rotante de tesseract + warp + particles
-   - Live HUD: tM, tC, LI, R, dH, E-Veto
-   - Simulation baseline (cableable a datos reales)
-   - Controles de rotación añadidos
-   ============================================================ */
+/**
+ * TCDS CAUSAL CLOCK v2
+ * Motor de renderizado Tesseract con efectos de post-procesamiento simulados.
+ */
 
 const canvas = document.getElementById('clock');
-const ctx = canvas.getContext('2d', { alpha: true });
+const ctx = canvas.getContext('2d', { alpha: false }); // Optimizado
 
+// UI Elements
 const ui = {
-  tmLabel: document.getElementById('tmLabel'),
-  tmBig: document.getElementById('tmBig'),
-  tcBig: document.getElementById('tcBig'),
-  liVal: document.getElementById('liVal'),
-  rVal: document.getElementById('rVal'),
-  dhVal: document.getElementById('dhVal'),
-  vetoVal: document.getElementById('vetoVal'),
-  badge: document.getElementById('stateBadge'),
-  stateText: document.getElementById('stateText'),
-  log: document.getElementById('log'),
-  speedXWVal: document.getElementById('speedXWVal'),
-  speedYWVal: document.getElementById('speedYWVal'),
-  speedZWVal: document.getElementById('speedZWVal')
+  tc: document.getElementById('tcDisplay'),
+  li: document.getElementById('liDisplay'),
+  dh: document.getElementById('dhDisplay'),
+  r: document.getElementById('rDisplay'),
+  stText: document.getElementById('statusText'),
+  stDot: document.getElementById('statusDot'),
+  log: document.getElementById('logBox')
 };
 
-let DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-function resize(){
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = Math.floor(rect.width * DPR);
-  canvas.height = Math.floor(rect.height * DPR);
-}
-window.addEventListener('resize', () => { resize(); });
-resize();
-
-// --------- Toggles
-const toggles = {
-  warp: true,
+// State
+let width, height, cx, cy;
+let t = 0;
+const opts = {
+  trails: true,
+  abberation: true,
   particles: true,
   auto: true
 };
-function bindSwitch(id, key){
-  const el = document.getElementById(id);
-  el.addEventListener('click', () => {
-    toggles[key] = !toggles[key];
-    el.classList.toggle('on', toggles[key]);
-    logLine(`⚙️ ${key.toUpperCase()} = ${toggles[key] ? 'ON' : 'OFF'}`, 'warn');
-  });
-}
-bindSwitch('swWarp','warp');
-bindSwitch('swParticles','particles');
-bindSwitch('swAuto','auto');
 
-// --------- Rotation controls
-let rotationSpeeds = {
-  xw: 0.0005,
-  yw: 0.0011,
-  zw: 0.0012
+// TCDS Metrics Simulation State
+const sim = {
+  sigma: 0.1,
+  targetSigma: 0.1,
+  li: 0.1,
+  r: 0.2,
+  dh: 0.0,
+  mode: 'SCAN'
 };
 
-function bindSlider(id, key, valEl){
-  const slider = document.getElementById(id);
-  slider.addEventListener('input', () => {
-    rotationSpeeds[key] = parseFloat(slider.value);
-    valEl.textContent = rotationSpeeds[key].toFixed(4);
-    logLine(`🔄 ${key.toUpperCase()} speed set to ${rotationSpeeds[key].toFixed(4)}`, 'warn');
-  });
-}
-bindSlider('speedXW', 'xw', ui.speedXWVal);
-bindSlider('speedYW', 'yw', ui.speedYWVal);
-bindSlider('speedZW', 'zw', ui.speedZWVal);
+// --- CORE MATH ---
 
-document.getElementById('btnResetRot').addEventListener('click', () => {
-  rotationSpeeds = { xw: 0.0005, yw: 0.0011, zw: 0.0012 };
-  document.getElementById('speedXW').value = rotationSpeeds.xw;
-  document.getElementById('speedYW').value = rotationSpeeds.yw;
-  document.getElementById('speedZW').value = rotationSpeeds.zw;
-  ui.speedXWVal.textContent = rotationSpeeds.xw.toFixed(4);
-  ui.speedYWVal.textContent = rotationSpeeds.yw.toFixed(4);
-  ui.speedZWVal.textContent = rotationSpeeds.zw.toFixed(4);
-  logLine('🔄 Rotation speeds reset', 'ok');
-});
-
-// --------- Log
-function logLine(text, klass=''){
-  const t = new Date().toLocaleTimeString();
-  const span = document.createElement('div');
-  span.innerHTML = `<span style="opacity:.55">${t}</span> — <span class="${klass}">${escapeHtml(text)}</span>`;
-  ui.log.prepend(span);
-  // keep short
-  while(ui.log.childNodes.length > 22) ui.log.removeChild(ui.log.lastChild);
-}
-function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-// --------- Σ-state simulation (cableable)
-let state = {
-  Sigma: 0.15,         // coherencia Σ (0..1)
-  dSigma: 0.0,         // dΣ/dt
-  LI: 0.10,            // locking index
-  R: 0.20,             // correlation proxy
-  dH: 0.00,            // entropy delta
-  vetoPass: false,
-  mode: 'ESCANEO',     // ESCANEO | NUCLEACION | ALERTA
-  shock: 0.0           // temporary injection
-};
-
-const KPI = {
-  LImin: 0.90,
-  Rmin: 0.95,
-  dHmax: -0.20
-};
-
-function setMode(m){
-  state.mode = m;
-  ui.stateText.textContent = m;
-  ui.badge.classList.remove('warn','bad');
-  ui.badge.querySelector('.s').style.background = getComputedStyle(document.documentElement).getPropertyValue('--ok');
-
-  if(m === 'NUCLEACION'){
-    ui.badge.classList.add('warn');
-    ui.badge.querySelector('.s').style.background = getComputedStyle(document.documentElement).getPropertyValue('--warn');
+// 4D Vertex Generation
+function createHypercube() {
+  const vertices = [];
+  const edges = [];
+  // Generar vértices
+  for(let i=0; i<16; i++) {
+    vertices.push([
+      (i & 1) ? 1 : -1,
+      (i & 2) ? 1 : -1,
+      (i & 4) ? 1 : -1,
+      (i & 8) ? 1 : -1
+    ]);
   }
-  if(m === 'ALERTA'){
-    ui.badge.classList.add('bad');
-    ui.badge.querySelector('.s').style.background = getComputedStyle(document.documentElement).getPropertyValue('--bad');
+  // Generar aristas
+  for(let i=0; i<16; i++) {
+    for(let j=i+1; j<16; j++) {
+      let diff = 0;
+      for(let k=0; k<4; k++) {
+        if(vertices[i][k] !== vertices[j][k]) diff++;
+      }
+      if(diff === 1) edges.push([i, j]);
+    }
   }
+  return { vertices, edges };
+}
+const hypercube = createHypercube();
+
+// Matrix Rotations
+function rotate(p, theta, axis1, axis2) {
+  const res = [...p];
+  const c = Math.cos(theta);
+  const s = Math.sin(theta);
+  res[axis1] = p[axis1] * c - p[axis2] * s;
+  res[axis2] = p[axis1] * s + p[axis2] * c;
+  return res;
 }
 
-function injectLock(){
-  state.shock = 1.0;
-  logLine('⚡ INJECT LOCK: elevando Σ/LI con caída ΔH si sostiene', 'bad');
+// 4D to 2D Projection
+function project(p4, scale, warpFactor) {
+  // 4D -> 3D
+  const wDist = 3 - (p4[3] * (1 + warpFactor * 0.5)); // Warp afecta la profundidad 4D
+  const p3 = [
+    p4[0] / wDist,
+    p4[1] / wDist,
+    p4[2] / wDist
+  ];
+  
+  // 3D -> 2D
+  const zDist = 2 - p3[2];
+  const p2 = [
+    p3[0] / zDist * scale * 400,
+    p3[1] / zDist * scale * 400
+  ];
+  return { x: p2[0], y: p2[1], depth: zDist * wDist };
 }
-function calm(){
-  state.shock = 0.0;
-  state.Sigma = 0.12;
-  state.LI = 0.08;
-  state.R = 0.16;
-  state.dH = 0.02;
-  setMode('ESCANEO');
-  logLine('🫧 CALMA: restableciendo baseline', 'ok');
-}
-document.getElementById('btnShock').addEventListener('click', injectLock);
-document.getElementById('btnCalm').addEventListener('click', calm);
 
-// --------- Particles (vértigo)
-const particles = [];
-function spawnParticles(n=120){
-  particles.length = 0;
-  for(let i=0;i<n;i++){
-    particles.push({
-      ang: Math.random()*Math.PI*2,
-      rad: 0.10 + Math.random()*0.90,
-      vel: (Math.random()*0.6+0.3) * (Math.random()<0.5?-1:1),
-      z: Math.random(),
-      w: 0.6 + Math.random()*1.8
+// Particles System
+const particles = Array(80).fill().map(() => ({
+  x: (Math.random()-0.5)*4, 
+  y: (Math.random()-0.5)*4, 
+  z: (Math.random()-0.5)*4, 
+  w: (Math.random()-0.5)*4,
+  speed: 0.005 + Math.random()*0.01
+}));
+
+// --- SIMULATION LOGIC ---
+
+function updateSim(dt) {
+  // Interpolación suave hacia el target
+  const lerp = (a, b, f) => a + (b - a) * f;
+  const f = dt * 2.0;
+
+  if (opts.auto) {
+    // Ruido basal
+    if (Math.random() < 0.02) sim.targetSigma = Math.random() * 0.3;
+  }
+
+  sim.sigma = lerp(sim.sigma, sim.targetSigma, f);
+  
+  // Relacionar métricas con Sigma
+  sim.li = lerp(sim.li, sim.sigma * 0.95 + 0.05, f * 0.5);
+  sim.r = lerp(sim.r, sim.sigma * 0.9 + 0.1, f * 0.5);
+  
+  // La entropía (dH) cae cuando Sigma sube (Inversamente proporcionales en estado lock)
+  const targetDh = sim.sigma > 0.8 ? -0.4 : (Math.random() * 0.1);
+  sim.dh = lerp(sim.dh, targetDh, f * 0.2);
+
+  // Update State Logic
+  if (sim.sigma > 0.85) setStatus('LOCKED', 'ok');
+  else if (sim.sigma > 0.5) setStatus('CONVERGING', 'info');
+  else setStatus('SCANNING', 'warn');
+
+  // Update UI
+  ui.tc.innerText = (sim.sigma * 10).toFixed(3);
+  ui.li.innerText = sim.li.toFixed(3);
+  ui.r.innerText = sim.r.toFixed(3);
+  ui.dh.innerText = sim.dh.toFixed(3);
+}
+
+let currentStatus = '';
+function setStatus(txt, type) {
+  if (currentStatus === txt) return;
+  currentStatus = txt;
+  ui.stText.innerText = txt;
+  ui.stDot.className = `dot ${type}`;
+  
+  // Badge color
+  const pill = document.getElementById('statusPill');
+  pill.style.borderColor = `var(--${type})`;
+  
+  log(`Cambio de fase: ${txt}`, type);
+}
+
+function log(msg, type='info') {
+  const d = new Date();
+  const ts = `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+  const el = document.createElement('div');
+  el.className = 'log-entry';
+  el.innerHTML = `<span class="log-time">[${ts}]</span> <span class="log-txt ${type}">${msg}</span>`;
+  ui.log.prepend(el);
+  if (ui.log.children.length > 20) ui.log.lastChild.remove();
+}
+
+// --- RENDER ---
+
+function drawLine(ctx, p1, p2, color, width) {
+  ctx.beginPath();
+  ctx.moveTo(cx + p1.x, cy + p1.y);
+  ctx.lineTo(cx + p2.x, cy + p2.y);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.stroke();
+}
+
+function render(timestamp) {
+  const dt = 0.016; // Fixed timestep approx
+  t += dt;
+  updateSim(dt);
+
+  // 1. Clear / Trail Effect
+  if (opts.trails) {
+    ctx.fillStyle = 'rgba(6, 7, 11, 0.2)'; // El secreto del "Vértigo": no borrar todo
+    ctx.fillRect(0, 0, width, height);
+  } else {
+    ctx.clearRect(0, 0, width, height);
+  }
+
+  // Configurar rotaciones basadas en Sigma (Más coherencia = Rotación más alineada/rápida)
+  const speed = 0.2 + (sim.sigma * 2.0); // Velocidad basada en Causal Time
+  const rXY = t * speed * 0.3;
+  const rZW = t * speed * 0.5;
+  const rXW = sim.sigma * 2; // Warp rotation
+
+  // Proyectar Vértices
+  const scale = Math.min(width, height) / 1000;
+  const pVerts = hypercube.vertices.map(v => {
+    let rv = v;
+    rv = rotate(rv, rXY, 0, 1); // Rotación base
+    rv = rotate(rv, rZW, 2, 3); // Rotación hiperespacial
+    if (sim.sigma > 0.6) rv = rotate(rv, rXW, 0, 3); // Distorsión por Lock
+    
+    // El "Warp Factor" aumenta con la entropía negativa (orden)
+    const warp = Math.abs(sim.dh) * 2; 
+    return project(rv, scale, warp);
+  });
+
+  // Función interna para dibujar el cubo
+  const drawModel = (colorOffset, lineWidth, blend) => {
+    ctx.globalCompositeOperation = blend;
+    
+    // Brillo Neón
+    ctx.shadowBlur = (sim.sigma * 20) + 5;
+    ctx.shadowColor = colorOffset;
+
+    // Dibujar Aristas
+    hypercube.edges.forEach(e => {
+      const p1 = pVerts[e[0]];
+      const p2 = pVerts[e[1]];
+      
+      // Distancia a la cámara para variar opacidad
+      const dist = (p1.depth + p2.depth) / 2;
+      const alpha = Math.max(0.1, 1 / (dist * 0.5));
+      
+      // Color dinámico según estado
+      let col;
+      if (currentStatus === 'LOCKED') col = `rgba(100, 255, 218, ${alpha})`; // Cyan
+      else if (currentStatus === 'SCANNING') col = `rgba(119, 166, 255, ${alpha})`; // Blue
+      else col = `rgba(255, 92, 141, ${alpha})`; // Red/Warn
+
+      if (opts.abberation && blend === 'screen') {
+        // Sobreescribir color si es un paso de aberración
+        col = colorOffset.replace('1)', `${alpha})`);
+      }
+
+      drawLine(ctx, p1, p2, col, lineWidth);
+    });
+    
+    ctx.shadowBlur = 0; // Reset
+  };
+
+  // 2. Renderizar Geometría
+  if (opts.abberation && sim.sigma > 0.3) {
+    // Efecto RGB Split (Aberración Cromática)
+    // Dibujar capas desplazadas
+    ctx.save();
+    ctx.translate(-2, -2);
+    drawModel('rgba(255, 0, 0, 1)', 2, 'screen');
+    ctx.restore();
+    
+    ctx.save();
+    ctx.translate(2, 2);
+    drawModel('rgba(0, 255, 255, 1)', 2, 'screen');
+    ctx.restore();
+  } else {
+    drawModel(null, 1.5, 'source-over');
+  }
+
+  // 3. Renderizar Partículas (Data Dust)
+  if (opts.particles) {
+    ctx.globalCompositeOperation = 'lighter';
+    particles.forEach(p => {
+      // Física simple 4D rotada
+      let rv = [p.x, p.y, p.z, p.w];
+      rv = rotate(rv, t * 0.2, 0, 3);
+      rv = rotate(rv, t * 0.1, 1, 2);
+      
+      const proj = project(rv, scale, 0);
+      
+      // Dibujar
+      const size = Math.max(0, 3 / proj.depth);
+      ctx.fillStyle = sim.sigma > 0.8 ? '#64ffda' : '#77a6ff';
+      ctx.beginPath();
+      ctx.arc(cx + proj.x, cy + proj.y, size, 0, Math.PI*2);
+      ctx.fill();
     });
   }
-}
-spawnParticles(140);
 
-// --------- Clock helpers
-function fmtTime(d){
-  const h = String(d.getHours()).padStart(2,'0');
-  const m = String(d.getMinutes()).padStart(2,'0');
-  const s = String(d.getSeconds()).padStart(2,'0');
-  return `${h}:${m}:${s}`;
+  requestAnimationFrame(render);
 }
 
-// --------- “Causal time” mapping (tC)
-function computeTC(){
-  // tC = dΣ/dt (scaled); we display in "s_Σ / s"
-  // Here, we take derivative proxy already computed and amplify for readability.
-  const tc = state.dSigma * 10.0; // scale for HUD
-  return tc;
+// --- INITIALIZATION ---
+
+function resize() {
+  width = canvas.parentElement.offsetWidth;
+  height = canvas.parentElement.offsetHeight;
+  // Soporte Retina
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.scale(dpr, dpr);
+  width = width; // usar coords lógicas
+  height = height;
+  cx = width / 2;
+  cy = height / 2;
 }
+window.addEventListener('resize', resize);
+resize();
 
-// --------- Simulation step
-let lastT = performance.now();
-function stepSim(now){
-  const dt = Math.max(0.001, Math.min(0.05, (now-lastT)/1000));
-  lastT = now;
+// Event Listeners for Controls
+document.getElementById('togTrails').onclick = (e) => {
+  opts.trails = !opts.trails;
+  e.target.classList.toggle('on');
+};
+document.getElementById('togAbberation').onclick = (e) => {
+  opts.abberation = !opts.abberation;
+  e.target.classList.toggle('on');
+};
+document.getElementById('togParticles').onclick = (e) => {
+  opts.particles = !opts.particles;
+  e.target.classList.toggle('on');
+};
+document.getElementById('togAuto').onclick = (e) => {
+  opts.auto = !opts.auto;
+  e.target.classList.toggle('on');
+};
 
-  // baseline drift
-  const base = 0.10 + 0.05*Math.sin(now*0.00025);
+document.getElementById('btnInject').onclick = () => {
+  sim.targetSigma = 0.98;
+  opts.auto = false;
+  setTimeout(() => { opts.auto = true; }, 4000); // Volver a auto después de 4s
+  log('INYECCIÓN MANUAL: Sincronización forzada', 'ok');
+};
 
-  // shock decays slowly unless auto keeps it alive
-  if(state.shock > 0){
-    // approach high-coherence regime
-    state.Sigma += (0.85 - state.Sigma) * (0.55*dt) * (0.75 + 0.50*state.shock);
-    state.LI    += (0.97 - state.LI)    * (0.95*dt) * (0.70 + 0.50*state.shock);
-    state.R     += (0.985 - state.R)    * (0.80*dt) * (0.60 + 0.50*state.shock);
+document.getElementById('btnReset').onclick = () => {
+  sim.targetSigma = 0.05;
+  sim.dh = 0.5; // Caos
+  opts.auto = false;
+  setTimeout(() => { opts.auto = true; }, 2000);
+  log('RESET: Dispersión entrópica', 'bad');
+};
 
-    // enforce entropy drop if Sigma sustains
-    const targetdH = (-0.28 - 0.18*Math.sin(now*0.0012)) * (0.65 + 0.35*state.shock);
-    state.dH += (targetdH - state.dH) * (0.65*dt);
+// Start
+log('Sistema TCDS iniciado.', 'info');
+log('Esperando flujo de eventos...', 'warn');
+requestAnimationFrame(render);
 
-    // decay shock
-    state.shock = Math.max(0, state.shock - 0.10*dt);
-  } else {
-    // return to baseline
-    state.Sigma += (base - state.Sigma) * (0.35*dt);
-    state.LI    += (0.08 - state.LI)    * (0.45*dt);
-    state.R     += (0.14 - state.R)     * (0.40*dt);
-    state.dH    += (0.02 - state.dH)    * (0.60*dt);
-
-    // occasional micro-spikes if auto
-    if(toggles.auto && Math.random() < 0.010){
-      state.Sigma += 0.08*Math.random();
-      state.LI += 0.05*Math.random();
-      state.R += 0.06*Math.random();
-      state.dH += 0.03*Math.random();
-    }
-  }
-
-  // derivative proxy
-  const prevSigma = state.Sigma;
-  // tiny noise
-  state.Sigma = clamp(state.Sigma + (Math.random()-0.5)*0.002, 0, 1);
-  state.dSigma = (state.Sigma - prevSigma)/dt;
-
-  // decision logic (E-Veto)
-  const sigmaOK = (state.LI >= KPI.LImin) && (state.R >= KPI.Rmin);
-  const vetoOK  = (state.dH <= KPI.dHmax);
-  state.vetoPass = sigmaOK && vetoOK;
-
-  // mode changes
-  if(state.LI > 0.60 && state.R > 0.70) setMode('NUCLEACION');
-  if(state.vetoPass) setMode('ALERTA');
-  if(state.LI < 0.35 && state.R < 0.45 && !state.vetoPass) setMode('ESCANEO');
-
-  // log significant transitions
-  if(state.vetoPass && Math.random() < 0.03){
-    logLine(`✅ PASS: LI=${state.LI.toFixed(2)} R=${state.R.toFixed(2)} ΔH=${state.dH.toFixed(2)}`, 'ok');
-  } else if (!vetoOK && sigmaOK && Math.random() < 0.02){
-    logLine(`⛔ E-VETO: coherente sin caída ΔH (${state.dH.toFixed(2)} > ${KPI.dHmax})`, 'bad');
-  }
-}
-
-function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
-
-// --------- Tesseract data
-const tesseractVertices = [];
-for (let x = -1; x <= 1; x += 2) {
-  for (let y = -1; y <= 1; y += 2) {
-    for (let z = -1; z <= 1; z += 2) {
-      for (let w = -1; w <= 1; w += 2) {
-        tesseractVertices.push([x, y, z, w]);
-      }
-    }
-  }
-}
-
-const tesseractEdges = [];
-for (let i = 0; i < tesseractVertices.length; i++) {
-  for (let j = i + 1; j < tesseractVertices.length; j++) {
-    let diffCount = 0;
-    for (let k = 0; k < 4; k++) {
-      if (tesseractVertices[i][k] !== tesseractVertices[j][k]) diffCount++;
-    }
-    if (diffCount === 1) {
-      tesseractEdges.push([i, j]);
-    }
-  }
-}
-
-// --------- Rotation matrices
-function rotate4D(point, angleXW, angleYW, angleZW) {
-  const cosXW = Math.cos(angleXW);
-  const sinXW = Math.sin(angleXW);
-  const cosYW = Math.cos(angleYW);
-  const sinYW = Math.sin(angleYW);
-  const cosZW = Math.cos(angleZW);
-  const sinZW = Math.sin(angleZW);
-
-  let [x, y, z, w] = point;
-
-  // Rotate XW
-  let tempX = x * cosXW - w * sinXW;
-  let tempW = x * sinXW + w * cosXW;
-  x = tempX;
-  w = tempW;
-
-  // Rotate YW
-  let tempY = y * cosYW - w * sinYW;
-  tempW = y * sinYW + w * cosYW;
-  y = tempY;
-  w = tempW;
-
-  // Rotate ZW
-  let tempZ = z * cosZW - w * sinZW;
-  tempW = z * sinZW + w * cosZW;
-  z = tempZ;
-  w = tempW;
-
-  return [x, y, z, w];
-}
-
-// --------- Project 4D to 3D
-function project4DTo3D(point, dist4D = 2) {
-  const [x, y, z, w] = point;
-  const factor = dist4D / (dist4D - w);
-  return [x * factor, y * factor, z * factor];
-}
-
-// --------- Project 3D to 2D
-function project3DTo2D(point, dist3D = 4) {
-  const [x, y, z] = point;
-  const factor = dist3D / (dist3D - z);
-  return [x * factor, y * factor];
-}
-
-// --------- Render
-function draw(now){
-  stepSim(now);
-
-  const w = canvas.width;
-  const h = canvas.height;
-  const cx = w * 0.5;
-  const cy = h * 0.5;
-  const scale = Math.min(w, h) * 0.2;
-
-  ctx.clearRect(0,0,w,h);
-
-  // soft vignette
-  ctx.save();
-  const vg = ctx.createRadialGradient(cx,cy,scale*0.2,cx,cy,scale*1.65);
-  vg.addColorStop(0, 'rgba(0,0,0,0)');
-  vg.addColorStop(1, 'rgba(0,0,0,0.55)');
-  ctx.fillStyle = vg;
-  ctx.fillRect(0,0,w,h);
-  ctx.restore();
-
-  // warp background (adapted for tesseract distortion)
-  const warp = toggles.warp ? (0.40 + 0.75 * Math.max(0, state.Sigma)) : 0.0;
-  const dist4D = 2 + warp * 2; // Distort projection based on warp
-
-  // Rotate angles based on time and Sigma, using controllable speeds
-  const t = now * 0.001;
-  const angleXW = t * rotationSpeeds.xw * 1000 + state.Sigma * 2; // Multiply t by 1000 if speeds are small
-  const angleYW = t * rotationSpeeds.yw * 1000 + state.LI * 2;
-  const angleZW = t * rotationSpeeds.zw * 1000 + state.R * 2;
-
-  // Project vertices
-  const projectedVertices = tesseractVertices.map(v => {
-    const rotated = rotate4D(v, angleXW, angleYW, angleZW);
-    const proj3D = project4DTo3D(rotated, dist4D);
-    const proj2D = project3DTo2D(proj3D);
-    return [cx + proj2D[0] * scale, cy + proj2D[1] * scale];
-  });
-
-  // Draw edges
-  ctx.save();
-  ctx.strokeStyle = `rgba(145,255,224,${0.3 + 0.4 * state.Sigma})`;
-  ctx.lineWidth = 1.5 * DPR;
-  ctx.globalCompositeOperation = 'lighter';
-  for (const [i, j] of tesseractEdges) {
-    const [x1, y1] = projectedVertices[i];
-    const [x2, y2] = projectedVertices[j];
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  // particles along edges or vertices
-  if(toggles.particles){
-    drawParticlesOnTesseract(projectedVertices, now, warp);
-  }
-
-  // center glow adapted
-  drawCore(cx, cy, scale, now);
-
-  // HUD update
-  const d = new Date();
-  ui.tmLabel.textContent = d.toDateString();
-  ui.tmBig.textContent = fmtTime(d);
-
-  const tc = computeTC();
-  ui.tcBig.textContent = (tc>=0?'+':'') + tc.toFixed(3);
-
-  ui.liVal.textContent = state.LI.toFixed(3);
-  ui.rVal.textContent  = state.R.toFixed(3);
-  ui.dhVal.textContent = state.dH.toFixed(3);
-  ui.vetoVal.textContent = state.vetoPass ? 'PASS' : 'HOLD/FAIL';
-
-  requestAnimationFrame(draw);
-}
-
-function drawParticlesOnTesseract(vertices, now, warp){
-  const t = now * 0.001;
-  ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
-
-  // Recorre partículas (enjambre)
-  for(const p of particles){
-    p.ang += p.vel * 0.003;
-    const i = Math.floor((p.z * (vertices.length-1)));
-    const j = (i + 1) % vertices.length;
-
-    const a = vertices[i], b = vertices[j];
-    const u = 0.5 + 0.5*Math.sin(p.ang);
-
-    const x = a[0]*(1-u) + b[0]*u + Math.sin(t+p.ang)*3*warp;
-    const y = a[1]*(1-u) + b[1]*u + Math.cos(t+p.ang)*3*warp;
-
-    const alpha = 0.06 + 0.18*(0.4 + 0.6*warp);
-    const size  = (0.9 + 2.2*warp) * DPR;
-
-    ctx.beginPath();
-    ctx.fillStyle = `rgba(145,255,224,${alpha})`;
-    ctx.arc(x,y,size,0,Math.PI*2);
-    ctx.fill();
-  }
-
-  ctx.restore();
-}
-
-function drawCore(cx,cy,R, now){
-  const t = now*0.001;
-
-  // glow
-  ctx.save();
-  ctx.globalCompositeOperation='lighter';
-  const g = ctx.createRadialGradient(cx,cy,0,cx,cy,R*0.22);
-  g.addColorStop(0, `rgba(145,255,224,${0.20+0.25*state.Sigma})`);
-  g.addColorStop(0.55, `rgba(119,166,255,${0.10+0.15*state.Sigma})`);
-  g.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle=g;
-  ctx.beginPath();
-  ctx.arc(cx,cy,R*0.22,0,Math.PI*2);
-  ctx.fill();
-  ctx.restore();
-
-  // core ring
-  ring(cx,cy,R*0.10, 2.0*DPR, `rgba(255,255,255,0.16)`);
-
-  // center dot
-  ctx.beginPath();
-  ctx.fillStyle = 'rgba(255,255,255,0.22)';
-  ctx.arc(cx,cy, 3.2*DPR, 0, Math.PI*2);
-  ctx.fill();
-
-  // small “breathing” notch
-  ctx.save();
-  ctx.translate(cx,cy);
-  const a = t*1.4;
-  ctx.beginPath();
-  ctx.strokeStyle = `rgba(145,255,224,${0.18+0.20*state.Sigma})`;
-  ctx.lineWidth = 2.0*DPR;
-  ctx.arc(0,0, R*0.14, a, a + Math.PI*0.75);
-  ctx.stroke();
-  ctx.restore();
-}
-
-// primitives
-function ring(cx,cy,r, lw, col){
-  ctx.beginPath();
-  ctx.lineWidth = lw;
-  ctx.strokeStyle = col;
-  ctx.arc(cx,cy,r,0,Math.PI*2);
-  ctx.stroke();
-}
-
-// initial log
-logLine('👁️ Reloj Causal Tesseract online. Modo: simulación hiperdimensional.', 'ok');
-logLine('Tip: presiona INJECT LOCK para ver la rotación causal en 4D.', 'warn');
-
-requestAnimationFrame(draw);
 </script>
 </body>
 </html>
