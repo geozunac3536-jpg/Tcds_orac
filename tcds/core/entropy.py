@@ -1,0 +1,1 @@
+# TODO: Insertar lógica de Shannon y Delta H
