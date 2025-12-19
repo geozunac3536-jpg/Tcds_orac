@@ -311,12 +311,14 @@
       </div>
 
       <nav class="nav">
-        <a class="btn" href="./"><span class="dot"></span>Home</a>
-        <a class="btn" href="./docs/"><span class="dot" style="background:var(--a2)"></span>Docs</a>
-        <a class="btn" href="https://github.com/geozunac3536-jpg" target="_blank" rel="noopener">
-          <span class="dot" style="background:var(--warn)"></span>GitHub
-        </a>
-        <a class="btn" href="mailto:genarocarrasco.ozuna@gmail.com"><span class="dot" style="background:var(--ok)"></span>Contacto</a>
+  <a class="btn" href="./"><span class="dot"></span>Home</a>
+  <a class="btn" href="./#docs"><span class="dot" style="background:var(--a2)"></span>Docs</a>
+  <a class="btn" href="https://github.com/geozunac3536-jpg" target="_blank" rel="noopener">
+    <span class="dot" style="background:var(--warn)"></span>GitHub
+  </a>
+  <a class="btn" href="mailto:genarocarrasco.ozuna@gmail.com">
+    <span class="dot" style="background:var(--ok)"></span>Contacto
+  </a>
       </nav>
     </header>
 
@@ -822,23 +824,28 @@ function draw(now){
 }
 
 function drawParticlesOnTesseract(vertices, now, warp){
-  const t = now*0.001;
+  const t = now * 0.001;
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
 
-  for(let i = 0; i < vertices.length; i++){
-    const [x, y] = vertices[i];
-    const alpha = 0.1 + 0.3 * Math.sin(t + i);
-    const size = (1.5 + 2.5 * warp) * DPR;
+  // Recorre partículas (enjambre)
+  for(const p of particles){
+    p.ang += p.vel * 0.003;
+    const i = Math.floor((p.z * (vertices.length-1)));
+    const j = (i + 1) % vertices.length;
+
+    const a = vertices[i], b = vertices[j];
+    const u = 0.5 + 0.5*Math.sin(p.ang);
+
+    const x = a[0]*(1-u) + b[0]*u + Math.sin(t+p.ang)*3*warp;
+    const y = a[1]*(1-u) + b[1]*u + Math.cos(t+p.ang)*3*warp;
+
+    const alpha = 0.06 + 0.18*(0.4 + 0.6*warp);
+    const size  = (0.9 + 2.2*warp) * DPR;
 
     ctx.beginPath();
-    ctx.fillStyle = `rgba(145,255,224,${alpha * 0.55})`;
-    ctx.arc(x, y, size, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.fillStyle = `rgba(119,166,255,${alpha * 0.40})`;
-    ctx.arc(x + Math.sin(t + i) * 2, y + Math.cos(t + i) * 2, size * 0.65, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(145,255,224,${alpha})`;
+    ctx.arc(x,y,size,0,Math.PI*2);
     ctx.fill();
   }
 
