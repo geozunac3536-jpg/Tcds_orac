@@ -1,0 +1,4 @@
+numpy
+spacy
+textblob
+matplotlib
