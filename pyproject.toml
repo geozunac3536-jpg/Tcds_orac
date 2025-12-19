@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tcds-muse"
+version = "0.1.0"
+description = "Sistema de Auditoría Cognitiva y Gobernanza Determinista."
+requires-python = ">=3.8"
+dependencies = [
+    "numpy",
+    "spacy",
+    "textblob",
+    "matplotlib",
+]
