@@ -1,1 +1,0 @@
-# TODO: Insertar lógica de cálculo LI, R, RMSE
