@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TCDS — Reloj Causal</title>
-  <meta name="description" content="Reloj Causal TCDS: tiempo normal vs tiempo causal, coherencia Σ y veto entrópico en vivo." />
+  <title>TCDS — Reloj Causal Tesseract</title>
+  <meta name="description" content="Reloj Causal TCDS: tiempo normal vs tiempo causal, coherencia Σ y veto entrópico en vivo, visualizado como un tesseract hiperdimensional con controles de rotación." />
   <meta name="theme-color" content="#070a10" />
 
   <style>
@@ -195,6 +195,12 @@
       color:rgba(234,240,255,.92);
     }
 
+    .side h3{
+      margin:0 0 6px;
+      font-size:13px;
+      color:var(--mut);
+    }
+
     .tiles{
       display:grid;
       grid-template-columns: 1fr;
@@ -248,6 +254,23 @@
     .switch.on .knob{background: rgba(145,255,224,.15);border-color: rgba(145,255,224,.26)}
     .switch.on .knob:after{transform: translateX(18px);background: rgba(145,255,224,.9)}
 
+    .slider{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-family:var(--mono);
+      font-size:12px;
+      color:var(--dim);
+    }
+    .slider input[type="range"]{
+      width:100%;
+      accent-color:var(--a2);
+    }
+    .slider .val{
+      color:var(--txt);
+      text-align:right;
+    }
+
     .log{
       margin-top:12px;
       font-family:var(--mono);
@@ -282,8 +305,8 @@
       <div class="brand">
         <div class="sig" aria-hidden="true"></div>
         <div>
-          <h1>TCDS — Reloj Causal</h1>
-          <div class="sub">Tiempo normal <span class="sep">·</span> Tiempo causal <span class="sep">·</span> coherencia Σ y veto entrópico (ΔH) en vivo</div>
+          <h1>TCDS — Reloj Causal Tesseract</h1>
+          <div class="sub">Tiempo normal <span class="sep">·</span> Tiempo causal <span class="sep">·</span> coherencia Σ y veto entrópico (ΔH) en vivo, proyectado en hiperespacio</div>
         </div>
       </div>
 
@@ -304,7 +327,7 @@
         <canvas id="clock"></canvas>
 
         <div class="overlay">
-          <div class="kicker"><span class="pulse"></span> Q·Σ = φ · reloj causal con “warp” coherencial</div>
+          <div class="kicker"><span class="pulse"></span> Q·Σ = φ · reloj causal con proyección tesseract hiperdimensional</div>
 
           <div class="hud">
             <div class="panel">
@@ -347,8 +370,8 @@
         <div class="tiles">
           <div class="tile">
             <p>
-              Esto es un <b>front-end</b> del Reloj Causal. Ahora está en modo
-              <b>simulación elegante</b> (para vértigo). Lo puedes cablear a:
+              Esto es un <b>front-end</b> del Reloj Causal con visualización tesseract. Ahora está en modo
+              <b>simulación hiperdimensional</b> (para vértigo 4D). Lo puedes cablear a:
               <span class="tagrow">
                 <span class="tag">outbox/*.json</span>
                 <span class="tag">events_feed.jsonl</span>
@@ -357,12 +380,29 @@
             </p>
 
             <div class="controls">
-              <div class="switch on" id="swWarp"><div class="knob"></div>WARP</div>
+              <div class="switch on" id="swWarp"><div class="knob"></div>WARP 4D</div>
               <div class="switch on" id="swParticles"><div class="knob"></div>PARTÍCULAS</div>
               <div class="switch on" id="swAuto"><div class="knob"></div>AUTO-ESCANEO</div>
               <a class="btn small" id="btnShock" href="javascript:void(0)"><span class="dot" style="background:var(--bad)"></span>INJECT LOCK</a>
               <a class="btn small" id="btnCalm" href="javascript:void(0)"><span class="dot" style="background:var(--a2)"></span>CALMA</a>
             </div>
+          </div>
+
+          <div class="tile">
+            <h3>Controles de Rotación</h3>
+            <div class="slider">
+              <label>Velocidad XW: <span class="val" id="speedXWVal">0.0005</span></label>
+              <input type="range" id="speedXW" min="-0.002" max="0.002" step="0.0001" value="0.0005">
+            </div>
+            <div class="slider">
+              <label>Velocidad YW: <span class="val" id="speedYWVal">0.0011</span></label>
+              <input type="range" id="speedYW" min="-0.002" max="0.002" step="0.0001" value="0.0011">
+            </div>
+            <div class="slider">
+              <label>Velocidad ZW: <span class="val" id="speedZWVal">0.0012</span></label>
+              <input type="range" id="speedZW" min="-0.002" max="0.002" step="0.0001" value="0.0012">
+            </div>
+            <a class="btn small" id="btnResetRot" href="javascript:void(0)"><span class="dot" style="background:var(--warn)"></span>RESET ROT</a>
           </div>
 
           <div class="tile">
@@ -373,8 +413,8 @@
           <div class="tile">
             <p>
               <b>Lectura:</b> tC no es “otra hora”; es un <b>gradiente</b> (dΣ/dt).
-              Cuando el sistema entra en locking y ΔH cae, el reloj <b>se adelanta</b>:
-              el futuro deja de ser conjetura y se vuelve geometría operable.
+              Cuando el sistema entra en locking y ΔH cae, el tesseract <b>rota y distorsiona</b>:
+              el futuro deja de ser conjetura y se vuelve geometría hiperoperable.
             </p>
           </div>
         </div>
@@ -392,10 +432,11 @@
 
 <script>
 /* ============================================================
-   TCDS CAUSAL CLOCK — “MEGALUJO VÉRTIGO”
-   - Canvas clock: rings + warp + particles
+   TCDS CAUSAL CLOCK — “TESERACTO HIPERDIMENSIONAL VÉRTIGO”
+   - Canvas: proyección rotante de tesseract + warp + particles
    - Live HUD: tM, tC, LI, R, dH, E-Veto
    - Simulation baseline (cableable a datos reales)
+   - Controles de rotación añadidos
    ============================================================ */
 
 const canvas = document.getElementById('clock');
@@ -411,7 +452,10 @@ const ui = {
   vetoVal: document.getElementById('vetoVal'),
   badge: document.getElementById('stateBadge'),
   stateText: document.getElementById('stateText'),
-  log: document.getElementById('log')
+  log: document.getElementById('log'),
+  speedXWVal: document.getElementById('speedXWVal'),
+  speedYWVal: document.getElementById('speedYWVal'),
+  speedZWVal: document.getElementById('speedZWVal')
 };
 
 let DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
@@ -440,6 +484,36 @@ function bindSwitch(id, key){
 bindSwitch('swWarp','warp');
 bindSwitch('swParticles','particles');
 bindSwitch('swAuto','auto');
+
+// --------- Rotation controls
+let rotationSpeeds = {
+  xw: 0.0005,
+  yw: 0.0011,
+  zw: 0.0012
+};
+
+function bindSlider(id, key, valEl){
+  const slider = document.getElementById(id);
+  slider.addEventListener('input', () => {
+    rotationSpeeds[key] = parseFloat(slider.value);
+    valEl.textContent = rotationSpeeds[key].toFixed(4);
+    logLine(`🔄 ${key.toUpperCase()} speed set to ${rotationSpeeds[key].toFixed(4)}`, 'warn');
+  });
+}
+bindSlider('speedXW', 'xw', ui.speedXWVal);
+bindSlider('speedYW', 'yw', ui.speedYWVal);
+bindSlider('speedZW', 'zw', ui.speedZWVal);
+
+document.getElementById('btnResetRot').addEventListener('click', () => {
+  rotationSpeeds = { xw: 0.0005, yw: 0.0011, zw: 0.0012 };
+  document.getElementById('speedXW').value = rotationSpeeds.xw;
+  document.getElementById('speedYW').value = rotationSpeeds.yw;
+  document.getElementById('speedZW').value = rotationSpeeds.zw;
+  ui.speedXWVal.textContent = rotationSpeeds.xw.toFixed(4);
+  ui.speedYWVal.textContent = rotationSpeeds.yw.toFixed(4);
+  ui.speedZWVal.textContent = rotationSpeeds.zw.toFixed(4);
+  logLine('🔄 Rotation speeds reset', 'ok');
+});
 
 // --------- Log
 function logLine(text, klass=''){
@@ -598,44 +672,138 @@ function stepSim(now){
 
 function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
 
+// --------- Tesseract data
+const tesseractVertices = [];
+for (let x = -1; x <= 1; x += 2) {
+  for (let y = -1; y <= 1; y += 2) {
+    for (let z = -1; z <= 1; z += 2) {
+      for (let w = -1; w <= 1; w += 2) {
+        tesseractVertices.push([x, y, z, w]);
+      }
+    }
+  }
+}
+
+const tesseractEdges = [];
+for (let i = 0; i < tesseractVertices.length; i++) {
+  for (let j = i + 1; j < tesseractVertices.length; j++) {
+    let diffCount = 0;
+    for (let k = 0; k < 4; k++) {
+      if (tesseractVertices[i][k] !== tesseractVertices[j][k]) diffCount++;
+    }
+    if (diffCount === 1) {
+      tesseractEdges.push([i, j]);
+    }
+  }
+}
+
+// --------- Rotation matrices
+function rotate4D(point, angleXW, angleYW, angleZW) {
+  const cosXW = Math.cos(angleXW);
+  const sinXW = Math.sin(angleXW);
+  const cosYW = Math.cos(angleYW);
+  const sinYW = Math.sin(angleYW);
+  const cosZW = Math.cos(angleZW);
+  const sinZW = Math.sin(angleZW);
+
+  let [x, y, z, w] = point;
+
+  // Rotate XW
+  let tempX = x * cosXW - w * sinXW;
+  let tempW = x * sinXW + w * cosXW;
+  x = tempX;
+  w = tempW;
+
+  // Rotate YW
+  let tempY = y * cosYW - w * sinYW;
+  tempW = y * sinYW + w * cosYW;
+  y = tempY;
+  w = tempW;
+
+  // Rotate ZW
+  let tempZ = z * cosZW - w * sinZW;
+  tempW = z * sinZW + w * cosZW;
+  z = tempZ;
+  w = tempW;
+
+  return [x, y, z, w];
+}
+
+// --------- Project 4D to 3D
+function project4DTo3D(point, dist4D = 2) {
+  const [x, y, z, w] = point;
+  const factor = dist4D / (dist4D - w);
+  return [x * factor, y * factor, z * factor];
+}
+
+// --------- Project 3D to 2D
+function project3DTo2D(point, dist3D = 4) {
+  const [x, y, z] = point;
+  const factor = dist3D / (dist3D - z);
+  return [x * factor, y * factor];
+}
+
 // --------- Render
 function draw(now){
   stepSim(now);
 
   const w = canvas.width;
   const h = canvas.height;
-  const cx = w*0.5;
-  const cy = h*0.5;
-  const R = Math.min(w,h) * 0.34;
+  const cx = w * 0.5;
+  const cy = h * 0.5;
+  const scale = Math.min(w, h) * 0.2;
 
   ctx.clearRect(0,0,w,h);
 
   // soft vignette
   ctx.save();
-  const vg = ctx.createRadialGradient(cx,cy,R*0.2,cx,cy,R*1.65);
+  const vg = ctx.createRadialGradient(cx,cy,scale*0.2,cx,cy,scale*1.65);
   vg.addColorStop(0, 'rgba(0,0,0,0)');
   vg.addColorStop(1, 'rgba(0,0,0,0.55)');
   ctx.fillStyle = vg;
   ctx.fillRect(0,0,w,h);
   ctx.restore();
 
-  // warp background rings
-  const warp = toggles.warp ? (0.40 + 0.75*Math.max(0, state.Sigma)) : 0.0;
-  drawWarp(cx,cy,R, now, warp);
+  // warp background (adapted for tesseract distortion)
+  const warp = toggles.warp ? (0.40 + 0.75 * Math.max(0, state.Sigma)) : 0.0;
+  const dist4D = 2 + warp * 2; // Distort projection based on warp
 
-  // particles
+  // Rotate angles based on time and Sigma, using controllable speeds
+  const t = now * 0.001;
+  const angleXW = t * rotationSpeeds.xw * 1000 + state.Sigma * 2; // Multiply t by 1000 if speeds are small
+  const angleYW = t * rotationSpeeds.yw * 1000 + state.LI * 2;
+  const angleZW = t * rotationSpeeds.zw * 1000 + state.R * 2;
+
+  // Project vertices
+  const projectedVertices = tesseractVertices.map(v => {
+    const rotated = rotate4D(v, angleXW, angleYW, angleZW);
+    const proj3D = project4DTo3D(rotated, dist4D);
+    const proj2D = project3DTo2D(proj3D);
+    return [cx + proj2D[0] * scale, cy + proj2D[1] * scale];
+  });
+
+  // Draw edges
+  ctx.save();
+  ctx.strokeStyle = `rgba(145,255,224,${0.3 + 0.4 * state.Sigma})`;
+  ctx.lineWidth = 1.5 * DPR;
+  ctx.globalCompositeOperation = 'lighter';
+  for (const [i, j] of tesseractEdges) {
+    const [x1, y1] = projectedVertices[i];
+    const [x2, y2] = projectedVertices[j];
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // particles along edges or vertices
   if(toggles.particles){
-    drawParticles(cx,cy,R, now, warp);
+    drawParticlesOnTesseract(projectedVertices, now, warp);
   }
 
-  // main clock rings
-  drawRings(cx,cy,R, now);
-
-  // hands: tM, tC
-  drawHands(cx,cy,R, now);
-
-  // center glow
-  drawCore(cx,cy,R, now);
+  // center glow adapted
+  drawCore(cx, cy, scale, now);
 
   // HUD update
   const d = new Date();
@@ -653,124 +821,27 @@ function draw(now){
   requestAnimationFrame(draw);
 }
 
-function drawWarp(cx,cy,R, now, warp){
-  const t = now*0.001;
-  const layers = 16;
-  for(let i=0;i<layers;i++){
-    const k = i/(layers-1);
-    const rr = R*(0.55 + 1.05*k);
-    const wob = (Math.sin(t*1.1 + i*0.6)*0.5 + Math.sin(t*0.7 + i*0.35))*0.5;
-    const a = 0.055 * (1-k) * (0.6 + warp) ;
-    ctx.beginPath();
-    ctx.lineWidth = Math.max(1, (1.2 - k)*DPR);
-    ctx.strokeStyle = `rgba(119,166,255,${a*0.85})`;
-    ctx.arc(cx,cy, rr + wob*R*0.03*(0.2+warp), 0, Math.PI*2);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.strokeStyle = `rgba(145,255,224,${a*0.65})`;
-    ctx.arc(cx,cy, rr*0.93 + wob*R*0.02*(0.2+warp), 0, Math.PI*2);
-    ctx.stroke();
-  }
-}
-
-function drawParticles(cx,cy,R, now, warp){
+function drawParticlesOnTesseract(vertices, now, warp){
   const t = now*0.001;
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
 
-  for(const p of particles){
-    // spiral motion
-    p.ang += p.vel * 0.006 * (0.25 + warp);
-    const rad = (0.12 + p.rad) * (R*1.35);
-    const swirl = Math.sin(t*1.2 + p.rad*9.0) * (R*0.04) * (0.25+warp);
-    const x = cx + Math.cos(p.ang) * (rad + swirl);
-    const y = cy + Math.sin(p.ang) * (rad + swirl);
-
-    const alpha = 0.06 + 0.18*(1-p.rad) + 0.12*Math.max(0,state.Sigma);
-    const size = (0.9 + p.w) * (0.9 + 1.7*(1-p.rad)) * DPR;
+  for(let i = 0; i < vertices.length; i++){
+    const [x, y] = vertices[i];
+    const alpha = 0.1 + 0.3 * Math.sin(t + i);
+    const size = (1.5 + 2.5 * warp) * DPR;
 
     ctx.beginPath();
-    ctx.fillStyle = `rgba(145,255,224,${alpha*0.55})`;
-    ctx.arc(x,y,size,0,Math.PI*2);
+    ctx.fillStyle = `rgba(145,255,224,${alpha * 0.55})`;
+    ctx.arc(x, y, size, 0, Math.PI*2);
     ctx.fill();
 
     ctx.beginPath();
-    ctx.fillStyle = `rgba(119,166,255,${alpha*0.40})`;
-    ctx.arc(x+Math.sin(p.ang)*1.2, y-Math.cos(p.ang)*1.2, size*0.65, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(119,166,255,${alpha * 0.40})`;
+    ctx.arc(x + Math.sin(t + i) * 2, y + Math.cos(t + i) * 2, size * 0.65, 0, Math.PI*2);
     ctx.fill();
   }
 
-  ctx.restore();
-}
-
-function drawRings(cx,cy,R, now){
-  const t = now*0.001;
-  // outer halo
-  ring(cx,cy,R*1.10, 2.0, `rgba(255,255,255,0.08)`);
-  ring(cx,cy,R*1.03, 1.2, `rgba(255,255,255,0.10)`);
-
-  // coherence ring (thickness depends on Sigma)
-  const thick = (2.0 + 6.0*state.Sigma) * DPR;
-  ring(cx,cy,R*0.82, thick, `rgba(145,255,224,${0.16+0.24*state.Sigma})`);
-
-  // entropy ring (color depends on dH)
-  const ok = state.dH <= -0.20;
-  ring(cx,cy,R*0.68, 2.0*DPR, ok ? `rgba(142,255,161,0.20)` : `rgba(255,122,162,0.18)`);
-
-  // ticks
-  ctx.save();
-  ctx.translate(cx,cy);
-  for(let i=0;i<120;i++){
-    const a = (i/120)*Math.PI*2;
-    const major = (i%10===0);
-    const len = (major ? 12 : 6) * DPR;
-    const rr1 = R*0.96;
-    const rr2 = rr1 - len;
-    ctx.beginPath();
-    ctx.lineWidth = (major ? 1.2 : 0.9) * DPR;
-    ctx.strokeStyle = major ? `rgba(255,255,255,0.15)` : `rgba(255,255,255,0.08)`;
-    ctx.moveTo(Math.cos(a)*rr1, Math.sin(a)*rr1);
-    ctx.lineTo(Math.cos(a)*rr2, Math.sin(a)*rr2);
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  // subtle orbit arcs
-  ctx.save();
-  ctx.globalAlpha = 0.7;
-  ctx.globalCompositeOperation = 'lighter';
-  arc(cx,cy,R*0.92, t*0.35, t*0.35 + Math.PI*1.2, `rgba(119,166,255,0.11)`, 2.0*DPR);
-  arc(cx,cy,R*0.75, -t*0.42, -t*0.42 + Math.PI*0.9, `rgba(145,255,224,0.10)`, 2.0*DPR);
-  ctx.restore();
-}
-
-function drawHands(cx,cy,R, now){
-  const d = new Date();
-  const sec = d.getSeconds() + d.getMilliseconds()/1000;
-  const min = d.getMinutes() + sec/60;
-  const hr  = (d.getHours()%12) + min/60;
-
-  // tM hands
-  const aS = (sec/60)*Math.PI*2 - Math.PI/2;
-  const aM = (min/60)*Math.PI*2 - Math.PI/2;
-  const aH = (hr/12)*Math.PI*2 - Math.PI/2;
-
-  // tC hand: phase lead based on Sigma and dH
-  // more Sigma + more negative dH => lead
-  const lead = clamp(0.10 + 0.85*state.Sigma + 0.35*clamp((-state.dH),0,0.6), 0, 1.4);
-  const aC = aM + lead*0.55; // offset from minute hand for “vértigo”
-
-  // draw
-  hand(cx,cy,aH, R*0.48, 3.2*DPR, `rgba(255,255,255,0.22)`);
-  hand(cx,cy,aM, R*0.62, 2.5*DPR, `rgba(255,255,255,0.20)`);
-  hand(cx,cy,aS, R*0.70, 1.6*DPR, `rgba(255,255,255,0.14)`);
-
-  // causal hand (glowing)
-  ctx.save();
-  ctx.globalCompositeOperation='lighter';
-  hand(cx,cy,aC, R*0.74, (2.8+2.2*state.Sigma)*DPR, `rgba(145,255,224,${0.18+0.22*state.Sigma})`);
-  hand(cx,cy,aC, R*0.58, (1.2+1.0*state.Sigma)*DPR, `rgba(119,166,255,${0.12+0.18*state.Sigma})`);
   ctx.restore();
 }
 
@@ -819,30 +890,10 @@ function ring(cx,cy,r, lw, col){
   ctx.arc(cx,cy,r,0,Math.PI*2);
   ctx.stroke();
 }
-function arc(cx,cy,r, a0, a1, col, lw){
-  ctx.beginPath();
-  ctx.strokeStyle = col;
-  ctx.lineWidth = lw;
-  ctx.lineCap = 'round';
-  ctx.arc(cx,cy,r,a0,a1);
-  ctx.stroke();
-}
-function hand(cx,cy, ang, len, lw, col){
-  const x = cx + Math.cos(ang)*len;
-  const y = cy + Math.sin(ang)*len;
-
-  ctx.beginPath();
-  ctx.lineWidth = lw;
-  ctx.strokeStyle = col;
-  ctx.lineCap = 'round';
-  ctx.moveTo(cx,cy);
-  ctx.lineTo(x,y);
-  ctx.stroke();
-}
 
 // initial log
-logLine('👁️ Reloj Causal online. Modo: simulación elegante.', 'ok');
-logLine('Tip: presiona INJECT LOCK para ver el “adelanto” causal.', 'warn');
+logLine('👁️ Reloj Causal Tesseract online. Modo: simulación hiperdimensional.', 'ok');
+logLine('Tip: presiona INJECT LOCK para ver la rotación causal en 4D.', 'warn');
 
 requestAnimationFrame(draw);
 </script>
