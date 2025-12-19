@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TCDS — Reloj Causal Tesseract v2.0</title>
-  <meta name="description" content="Reloj Causal TCDS: Visualización hiperdimensional de coherencia Σ y veto entrópico." />
+  <title>TCDS — Reloj Causal Tesseract v2.1 (E-Veto)</title>
+  <meta name="description" content="Reloj Causal TCDS: Visualización hiperdimensional de coherencia Σ (LI, R) + veto entrópico (ΔH). tC = dΣ/dt." />
   <meta name="theme-color" content="#06070b" />
 
   <style>
@@ -24,8 +24,8 @@
       --bad: #ff5c8d;
       --shadow: 0 20px 80px rgba(0,0,0,.6);
       --r: 16px;
-      --mono: "SF Mono", "Fira Code", Consolas, monospace;
-      --sans: "Inter", system-ui, sans-serif;
+      --mono: "SF Mono", "Fira Code", Consolas, ui-monospace, monospace;
+      --sans: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
 
     *{box-sizing:border-box}
@@ -58,12 +58,19 @@
       background-size: 100% 4px;
       z-index: 999;
       pointer-events: none;
-      opacity: 0.3;
+      opacity: 0.28;
     }
 
-    .wrap{max-width:1280px;margin:0 auto;padding:20px; display: flex; flex-direction: column; height: 100vh;}
+    .wrap{
+      max-width:1280px;
+      margin:0 auto;
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      height:100vh;
+      gap:16px;
+    }
 
-    /* Header Compacto */
     header{
       flex: 0 0 auto;
       display:flex; justify-content:space-between; align-items:center;
@@ -72,122 +79,226 @@
       border-radius:12px;
       background: rgba(10,12,16,0.6);
       backdrop-filter: blur(10px);
-      margin-bottom: 16px;
     }
     .brand h1{margin:0; font-size:16px; font-weight:600; letter-spacing:1px; color: var(--txt);}
     .brand span {color: var(--accent);}
-    
-    .nav a {
-      color: var(--mut); text-decoration: none; font-size: 12px; font-family: var(--mono);
-      margin-left: 15px; transition: color 0.2s;
-    }
-    .nav a:hover {color: var(--a2);}
 
-    /* Grid Layout */
+    .nav a{
+      color: var(--mut);
+      text-decoration:none;
+      font-size: 12px;
+      font-family: var(--mono);
+      margin-left: 15px;
+      transition: color 0.2s;
+      opacity:.92;
+    }
+    .nav a:hover{ color: var(--a2); }
+
     .grid{
       flex: 1 1 auto;
       display:grid;
       grid-template-columns: 1fr 320px;
       gap:16px;
-      min-height: 0; /* Para que el scroll funcione dentro si es necesario */
+      min-height:0;
     }
-    @media(max-width:900px){ .grid{grid-template-columns:1fr; grid-template-rows: 1fr auto;} }
+    @media(max-width:900px){
+      .grid{grid-template-columns:1fr; grid-template-rows: 1fr auto;}
+    }
 
-    /* Canvas Container */
     .clockWrap{
       position:relative;
       border:1px solid var(--stroke);
       border-radius: var(--r);
-      background: #000; /* Pure black for contrast */
+      background: #000;
       overflow:hidden;
       box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+      min-height: 520px;
     }
-    canvas { display:block; width:100%; height:100%; }
+    canvas{ display:block; width:100%; height:100%; }
 
-    /* HUD Overlay */
-    .overlay {
+    .overlay{
       position:absolute; inset:0; pointer-events:none;
       padding:24px;
       display:flex; flex-direction:column; justify-content:space-between;
+      gap:12px;
     }
 
-    .metrics-row {
-      display: flex; gap: 20px; align-items: flex-start;
+    .metrics-row{
+      display:flex;
+      gap: 16px;
+      align-items:flex-start;
+      flex-wrap:wrap;
     }
 
-    .metric-group {
-      background: rgba(0,0,0,0.6);
+    .metric-group{
+      background: rgba(0,0,0,0.58);
       border: 1px solid var(--stroke);
       padding: 10px 14px;
       border-radius: 8px;
       backdrop-filter: blur(4px);
+      min-width: 170px;
     }
-    .metric-label { font-family: var(--mono); font-size: 10px; color: var(--mut); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-    .metric-val { font-family: var(--mono); font-size: 18px; color: var(--a2); text-shadow: 0 0 10px rgba(100,255,218,0.3); }
-    .metric-val.giant { font-size: 32px; color: var(--txt); }
-    
-    .status-pill {
-      font-family: var(--mono); font-size: 11px;
-      padding: 4px 10px; border-radius: 99px;
-      background: rgba(255,255,255,0.05); border: 1px solid var(--stroke);
-      display: inline-flex; align-items: center; gap: 6px;
+    .metric-label{
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--mut);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
     }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mut); box-shadow: 0 0 5px var(--mut); }
-    .dot.active { background: var(--ok); box-shadow: 0 0 8px var(--ok); animation: blink 2s infinite; }
-    .dot.warn { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
-    .dot.bad { background: var(--bad); box-shadow: 0 0 8px var(--bad); animation: blink 0.5s infinite; }
+    .metric-val{
+      font-family: var(--mono);
+      font-size: 18px;
+      color: var(--a2);
+      text-shadow: 0 0 10px rgba(100,255,218,0.25);
+    }
+    .metric-val.giant{ font-size: 32px; color: var(--txt); text-shadow:none; }
+
+    .status-pill{
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--stroke);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      white-space: nowrap;
+    }
+    .dot{
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--mut);
+      box-shadow: 0 0 6px var(--mut);
+    }
+    .dot.ok{ background: var(--ok); box-shadow: 0 0 10px var(--ok); animation: blink 2s infinite; }
+    .dot.warn{ background: var(--warn); box-shadow: 0 0 10px var(--warn); }
+    .dot.bad{ background: var(--bad); box-shadow: 0 0 10px var(--bad); animation: blink 0.5s infinite; }
 
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* Sidebar */
-    .side {
-      display: flex; flex-direction: column; gap: 12px;
-      overflow-y: auto;
+    .side{
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      overflow-y:auto;
+      min-height:0;
     }
-    .panel {
+    .panel{
       background: rgba(15,18,24,0.6);
       border: 1px solid var(--stroke);
       border-radius: 12px;
       padding: 16px;
     }
-    
-    h2 { font-size: 12px; font-family: var(--mono); text-transform: uppercase; color: var(--mut); margin: 0 0 12px 0; border-bottom: 1px solid var(--stroke); padding-bottom: 8px; }
-
-    .ctrl-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; color: var(--txt); }
-    
-    /* Custom Toggle */
-    .toggle {
-      position: relative; width: 36px; height: 18px; background: rgba(255,255,255,0.1); border-radius: 20px; cursor: pointer; transition: 0.3s;
+    h2{
+      font-size: 12px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      color: var(--mut);
+      margin: 0 0 12px 0;
+      border-bottom: 1px solid var(--stroke);
+      padding-bottom: 8px;
+      letter-spacing: .8px;
     }
-    .toggle::after {
-      content:''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: 0.3s;
-    }
-    .toggle.on { background: rgba(119,166,255,0.4); }
-    .toggle.on::after { left: 20px; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
 
-    .action-btn {
-      width: 100%; padding: 10px; margin-top: 8px;
-      background: rgba(255,255,255,0.05); border: 1px solid var(--stroke);
-      color: var(--txt); font-family: var(--mono); font-size: 11px;
-      border-radius: 6px; cursor: pointer; transition: 0.2s;
-      text-transform: uppercase; letter-spacing: 1px;
+    .ctrl-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--txt);
+      gap:10px;
     }
-    .action-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); }
-    .action-btn.danger { border-color: rgba(255,92,141,0.4); color: #ffadad; }
-    .action-btn.danger:hover { background: rgba(255,92,141,0.15); box-shadow: 0 0 15px rgba(255,92,141,0.2); }
 
-    .log-container {
-      flex: 1; min-height: 150px;
-      background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px;
-      font-family: var(--mono); font-size: 11px; color: var(--mut);
-      overflow-y: auto; scrollbar-width: thin;
+    .toggle{
+      position: relative;
+      width: 36px;
+      height: 18px;
+      background: rgba(255,255,255,0.10);
+      border-radius: 20px;
+      cursor:pointer;
+      transition: 0.25s;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255,255,255,.10);
     }
-    .log-entry { margin-bottom: 4px; line-height: 1.4; }
-    .log-time { color: var(--dim); margin-right: 6px; }
-    .log-txt.ok { color: var(--ok); }
-    .log-txt.bad { color: var(--bad); }
-    .log-txt.info { color: var(--accent); }
+    .toggle::after{
+      content:'';
+      position:absolute;
+      top: 2px; left: 2px;
+      width: 14px; height: 14px;
+      background: rgba(255,255,255,.92);
+      border-radius: 50%;
+      transition: 0.25s;
+    }
+    .toggle.on{
+      background: rgba(119,166,255,0.35);
+      border-color: rgba(119,166,255,0.35);
+    }
+    .toggle.on::after{
+      left: 20px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(119,166,255,.55);
+    }
 
+    .action-btn{
+      width:100%;
+      padding:10px;
+      margin-top: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--stroke);
+      color: var(--txt);
+      font-family: var(--mono);
+      font-size: 11px;
+      border-radius: 8px;
+      cursor:pointer;
+      transition: 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .action-btn:hover{
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(119,166,255,0.45);
+    }
+    .action-btn.danger{
+      border-color: rgba(255,92,141,0.40);
+      color: #ffb7c9;
+    }
+    .action-btn.danger:hover{
+      background: rgba(255,92,141,0.16);
+      box-shadow: 0 0 16px rgba(255,92,141,0.18);
+      border-color: rgba(255,92,141,0.55);
+    }
+
+    .log-container{
+      flex:1;
+      min-height: 160px;
+      background: rgba(0,0,0,0.28);
+      border-radius: 10px;
+      padding: 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--mut);
+      overflow-y:auto;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .log-entry{ margin-bottom: 6px; line-height:1.4; }
+    .log-time{ color: var(--dim); margin-right: 6px; }
+    .log-txt.ok{ color: var(--ok); }
+    .log-txt.bad{ color: var(--bad); }
+    .log-txt.warn{ color: var(--warn); }
+    .log-txt.info{ color: var(--accent); }
+
+    .tiny{
+      font-family:var(--mono);
+      font-size: 11px;
+      color: var(--dim);
+      margin-top: 10px;
+      line-height:1.45;
+    }
+    .tiny b{ color: rgba(234,240,255,.9); }
   </style>
 </head>
 
@@ -195,46 +306,47 @@
   <div class="wrap">
     <header>
       <div class="brand">
-        <h1>TCDS <span>//</span> CAUSAL TESSERACT</h1>
+        <h1>TCDS <span>//</span> CAUSAL TESSERACT <span style="opacity:.6">v2.1</span></h1>
       </div>
       <nav class="nav">
-        <a href="#">DOCS</a>
-        <a href="#">GITHUB</a>
-        <a href="#">STATUS</a>
+        <a href="./docs/">DOCS</a>
+        <a href="https://github.com/geozunac3536-jpg" target="_blank" rel="noopener">GITHUB</a>
+        <a href="#status">STATUS</a>
       </nav>
     </header>
 
     <div class="grid">
       <section class="clockWrap">
         <canvas id="clock"></canvas>
-        
+
         <div class="overlay">
           <div class="metrics-row">
             <div class="metric-group">
-              <div class="metric-label">Tiempo Causal (dΣ/dt)</div>
-              <div class="metric-val giant" id="tcDisplay">0.00</div>
+              <div class="metric-label">Tiempo Causal (tC = dΣ/dt)</div>
+              <div class="metric-val giant" id="tcDisplay">0.000</div>
             </div>
+
             <div class="metric-group">
               <div class="metric-label">Estado</div>
               <div class="status-pill" id="statusPill">
-                <span class="dot" id="statusDot"></span>
+                <span class="dot warn" id="statusDot"></span>
                 <span id="statusText">INIT</span>
               </div>
             </div>
           </div>
 
-          <div class="metrics-row" style="margin-top: auto;">
+          <div class="metrics-row" style="margin-top:auto;">
             <div class="metric-group">
-              <div class="metric-label">Σ-Coherence (LI)</div>
+              <div class="metric-label">Locking (LI)</div>
               <div class="metric-val" id="liDisplay" style="color:var(--accent)">0.000</div>
-            </div>
-            <div class="metric-group">
-              <div class="metric-label">Entropía (ΔH)</div>
-              <div class="metric-val" id="dhDisplay" style="color:var(--warn)">0.000</div>
             </div>
             <div class="metric-group">
               <div class="metric-label">Reproducibilidad (R)</div>
               <div class="metric-val" id="rDisplay">0.000</div>
+            </div>
+            <div class="metric-group">
+              <div class="metric-label">Entropía (ΔH)</div>
+              <div class="metric-val" id="dhDisplay" style="color:var(--warn)">0.000</div>
             </div>
           </div>
         </div>
@@ -243,14 +355,14 @@
       <aside class="side">
         <div class="panel">
           <h2>Configuración Hiperespacial</h2>
-          
+
           <div class="ctrl-row">
             <span>Motion Trails (Estelas)</span>
             <div class="toggle on" id="togTrails"></div>
           </div>
           <div class="ctrl-row">
             <span>Aberración Cromática</span>
-            <div class="toggle on" id="togAbberation"></div>
+            <div class="toggle on" id="togAberration"></div>
           </div>
           <div class="ctrl-row">
             <span>Partículas Cuánticas</span>
@@ -260,18 +372,22 @@
             <span>Auto-Oscilación</span>
             <div class="toggle on" id="togAuto"></div>
           </div>
+
+          <div class="tiny">
+            <b>E-Veto:</b> PASS solo si <b>LI≥0.90</b>, <b>R&gt;0.95</b> y <b>ΔH≤−0.20</b>.
+            Si hay coherencia sin caída entrópica: <b>E-VETO</b>.
+          </div>
         </div>
 
         <div class="panel">
           <h2>Inyección Manual</h2>
           <button class="action-btn danger" id="btnInject">⚡ Inyectar Lock (High Σ)</button>
-          <button class="action-btn" id="btnReset">↺ Resetear Entropía</button>
+          <button class="action-btn" id="btnReset">↺ Reset Entrópico</button>
         </div>
 
         <div class="panel" style="flex:1; display:flex; flex-direction:column;">
           <h2>Log de Eventos</h2>
-          <div class="log-container" id="logBox">
-            </div>
+          <div class="log-container" id="logBox"></div>
         </div>
       </aside>
     </div>
@@ -279,52 +395,102 @@
 
 <script>
 /**
- * TCDS CAUSAL CLOCK v2
- * Motor de renderizado Tesseract con efectos de post-procesamiento simulados.
+ * TCDS CAUSAL CLOCK v2.1
+ * - FIX: resize() no acumula scale (ctx.setTransform)
+ * - FIX: proyección con clamp (evita inf / saltos)
+ * - FIX: tC = dΣ/dt (derivada discreta)
+ * - FIX: Estado guiado por E-Veto (LI,R,ΔH), no por sigma solo
+ * - FIX: color RGBA sin hacks replace()
  */
 
 const canvas = document.getElementById('clock');
-const ctx = canvas.getContext('2d', { alpha: false }); // Optimizado
+const ctx = canvas.getContext('2d', { alpha: false });
 
-// UI Elements
+// UI
 const ui = {
   tc: document.getElementById('tcDisplay'),
   li: document.getElementById('liDisplay'),
   dh: document.getElementById('dhDisplay'),
-  r: document.getElementById('rDisplay'),
+  r:  document.getElementById('rDisplay'),
   stText: document.getElementById('statusText'),
-  stDot: document.getElementById('statusDot'),
+  stDot:  document.getElementById('statusDot'),
+  pill:   document.getElementById('statusPill'),
   log: document.getElementById('logBox')
 };
 
-// State
-let width, height, cx, cy;
-let t = 0;
+// Canvas dims
+let width = 0, height = 0, cx = 0, cy = 0;
+
+// Options
 const opts = {
   trails: true,
-  abberation: true,
+  aberration: true,
   particles: true,
   auto: true
 };
 
-// TCDS Metrics Simulation State
-const sim = {
-  sigma: 0.1,
-  targetSigma: 0.1,
-  li: 0.1,
-  r: 0.2,
-  dh: 0.0,
-  mode: 'SCAN'
+// KPI (E-Veto)
+const KPI = {
+  LImin: 0.90,
+  Rmin:  0.95,
+  dHmax: -0.20
 };
 
-// --- CORE MATH ---
+// TCDS Sim State
+const sim = {
+  sigma: 0.10,
+  targetSigma: 0.10,
+  li: 0.10,
+  r: 0.20,
+  dh: 0.00
+};
 
-// 4D Vertex Generation
-function createHypercube() {
+// tC derivative memory
+let prevSigma = sim.sigma;
+
+// Time
+let t = 0;
+
+// Helpers
+const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
+const lerp  = (a,b,f)=>a+(b-a)*f;
+const rgba  = (r,g,b,a)=>`rgba(${r}, ${g}, ${b}, ${a})`;
+
+// Logging
+function log(msg, type='info'){
+  const d = new Date();
+  const pad = (n)=>String(n).padStart(2,'0');
+  const ts = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const el = document.createElement('div');
+  el.className = 'log-entry';
+  el.innerHTML = `<span class="log-time">[${ts}]</span> <span class="log-txt ${type}">${escapeHtml(msg)}</span>`;
+  ui.log.prepend(el);
+  if(ui.log.children.length > 24) ui.log.lastChild.remove();
+}
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// Status
+let currentStatus = '';
+function setStatus(txt, level){
+  if(currentStatus === txt) return;
+  currentStatus = txt;
+  ui.stText.textContent = txt;
+
+  ui.stDot.className = `dot ${level}`;
+  const cssVar = level === 'ok' ? 'var(--ok)' : (level === 'bad' ? 'var(--bad)' : 'var(--warn)');
+  ui.pill.style.borderColor = cssVar;
+
+  log(`Cambio de fase: ${txt}`, level === 'ok' ? 'ok' : (level === 'bad' ? 'bad' : 'warn'));
+}
+
+// --- CORE 4D MODEL ---
+function createHypercube(){
   const vertices = [];
   const edges = [];
-  // Generar vértices
-  for(let i=0; i<16; i++) {
+
+  for(let i=0;i<16;i++){
     vertices.push([
       (i & 1) ? 1 : -1,
       (i & 2) ? 1 : -1,
@@ -332,289 +498,303 @@ function createHypercube() {
       (i & 8) ? 1 : -1
     ]);
   }
-  // Generar aristas
-  for(let i=0; i<16; i++) {
-    for(let j=i+1; j<16; j++) {
-      let diff = 0;
-      for(let k=0; k<4; k++) {
+
+  for(let i=0;i<16;i++){
+    for(let j=i+1;j<16;j++){
+      let diff=0;
+      for(let k=0;k<4;k++){
         if(vertices[i][k] !== vertices[j][k]) diff++;
       }
-      if(diff === 1) edges.push([i, j]);
+      if(diff===1) edges.push([i,j]);
     }
   }
+
   return { vertices, edges };
 }
 const hypercube = createHypercube();
 
-// Matrix Rotations
-function rotate(p, theta, axis1, axis2) {
-  const res = [...p];
+function rotate(p, theta, axis1, axis2){
+  const res = [p[0],p[1],p[2],p[3]];
   const c = Math.cos(theta);
   const s = Math.sin(theta);
-  res[axis1] = p[axis1] * c - p[axis2] * s;
-  res[axis2] = p[axis1] * s + p[axis2] * c;
+  const a = p[axis1]*c - p[axis2]*s;
+  const b = p[axis1]*s + p[axis2]*c;
+  res[axis1]=a;
+  res[axis2]=b;
   return res;
 }
 
-// 4D to 2D Projection
-function project(p4, scale, warpFactor) {
+function project(p4, scale, warpFactor){
   // 4D -> 3D
-  const wDist = 3 - (p4[3] * (1 + warpFactor * 0.5)); // Warp afecta la profundidad 4D
+  let wDist = 3 - (p4[3] * (1 + warpFactor * 0.5));
+  wDist = Math.max(0.35, wDist);
+
   const p3 = [
-    p4[0] / wDist,
-    p4[1] / wDist,
-    p4[2] / wDist
+    p4[0]/wDist,
+    p4[1]/wDist,
+    p4[2]/wDist
   ];
-  
+
   // 3D -> 2D
-  const zDist = 2 - p3[2];
-  const p2 = [
-    p3[0] / zDist * scale * 400,
-    p3[1] / zDist * scale * 400
-  ];
-  return { x: p2[0], y: p2[1], depth: zDist * wDist };
+  let zDist = 2 - p3[2];
+  zDist = Math.max(0.35, zDist);
+
+  return {
+    x: (p3[0]/zDist) * scale * 400,
+    y: (p3[1]/zDist) * scale * 400,
+    depth: zDist * wDist
+  };
 }
 
-// Particles System
-const particles = Array(80).fill().map(() => ({
-  x: (Math.random()-0.5)*4, 
-  y: (Math.random()-0.5)*4, 
-  z: (Math.random()-0.5)*4, 
-  w: (Math.random()-0.5)*4,
-  speed: 0.005 + Math.random()*0.01
+// Particles (Data Dust)
+const particles = Array(80).fill(0).map(()=>({
+  x:(Math.random()-0.5)*4,
+  y:(Math.random()-0.5)*4,
+  z:(Math.random()-0.5)*4,
+  w:(Math.random()-0.5)*4
 }));
 
-// --- SIMULATION LOGIC ---
-
-function updateSim(dt) {
-  // Interpolación suave hacia el target
-  const lerp = (a, b, f) => a + (b - a) * f;
+// --- SIMULATION (placeholder; luego lo conectas a outbox/status.json) ---
+function updateSim(dt){
   const f = dt * 2.0;
 
-  if (opts.auto) {
-    // Ruido basal
-    if (Math.random() < 0.02) sim.targetSigma = Math.random() * 0.3;
+  if(opts.auto){
+    // micro-drift basal
+    if(Math.random() < 0.02) sim.targetSigma = Math.random()*0.32;
   }
 
+  // drive sigma
   sim.sigma = lerp(sim.sigma, sim.targetSigma, f);
-  
-  // Relacionar métricas con Sigma
-  sim.li = lerp(sim.li, sim.sigma * 0.95 + 0.05, f * 0.5);
-  sim.r = lerp(sim.r, sim.sigma * 0.9 + 0.1, f * 0.5);
-  
-  // La entropía (dH) cae cuando Sigma sube (Inversamente proporcionales en estado lock)
-  const targetDh = sim.sigma > 0.8 ? -0.4 : (Math.random() * 0.1);
-  sim.dh = lerp(sim.dh, targetDh, f * 0.2);
 
-  // Update State Logic
-  if (sim.sigma > 0.85) setStatus('LOCKED', 'ok');
-  else if (sim.sigma > 0.5) setStatus('CONVERGING', 'info');
-  else setStatus('SCANNING', 'warn');
+  // map sigma -> LI, R
+  sim.li = lerp(sim.li, sim.sigma*0.95 + 0.05, f*0.55);
+  sim.r  = lerp(sim.r,  sim.sigma*0.90 + 0.10, f*0.55);
 
-  // Update UI
-  ui.tc.innerText = (sim.sigma * 10).toFixed(3);
-  ui.li.innerText = sim.li.toFixed(3);
-  ui.r.innerText = sim.r.toFixed(3);
-  ui.dh.innerText = sim.dh.toFixed(3);
-}
+  // ΔH: cae forzado solo cuando sigma alto (lock), si no regresa a ~0
+  const targetDh = (sim.sigma > 0.80)
+    ? (-0.26 - 0.18*Math.sin(t*1.4))   // orden (negativo)
+    : (0.02 + Math.random()*0.06);     // ruido (positivo pequeño)
+  sim.dh = lerp(sim.dh, targetDh, f*0.18);
 
-let currentStatus = '';
-function setStatus(txt, type) {
-  if (currentStatus === txt) return;
-  currentStatus = txt;
-  ui.stText.innerText = txt;
-  ui.stDot.className = `dot ${type}`;
-  
-  // Badge color
-  const pill = document.getElementById('statusPill');
-  pill.style.borderColor = `var(--${type})`;
-  
-  log(`Cambio de fase: ${txt}`, type);
-}
+  // tC = dΣ/dt
+  const dSigma = (sim.sigma - prevSigma) / Math.max(1e-6, dt);
+  prevSigma = sim.sigma;
 
-function log(msg, type='info') {
-  const d = new Date();
-  const ts = `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
-  const el = document.createElement('div');
-  el.className = 'log-entry';
-  el.innerHTML = `<span class="log-time">[${ts}]</span> <span class="log-txt ${type}">${msg}</span>`;
-  ui.log.prepend(el);
-  if (ui.log.children.length > 20) ui.log.lastChild.remove();
+  // Escala solo para UI (no cambia la física)
+  const tC = dSigma * 2.5;
+
+  // E-Veto decision
+  const sigmaOK = (sim.li >= KPI.LImin) && (sim.r > KPI.Rmin);
+  const vetoOK  = (sim.dh <= KPI.dHmax);
+
+  if(sigmaOK && vetoOK) setStatus('PASS', 'ok');
+  else if(sigmaOK && !vetoOK) setStatus('E-VETO', 'bad');
+  else if(sim.sigma > 0.5) setStatus('NUCLEATION', 'warn');
+  else setStatus('SCAN', 'warn');
+
+  // UI update
+  ui.tc.textContent = tC.toFixed(3);
+  ui.li.textContent = sim.li.toFixed(3);
+  ui.r.textContent  = sim.r.toFixed(3);
+  ui.dh.textContent = sim.dh.toFixed(3);
+
+  // occasional log pulses
+  if(sigmaOK && !vetoOK && Math.random()<0.03){
+    log(`E-VETO: LI=${sim.li.toFixed(2)} R=${sim.r.toFixed(2)} pero ΔH=${sim.dh.toFixed(2)} > ${KPI.dHmax}`, 'bad');
+  }
+  if(sigmaOK && vetoOK && Math.random()<0.04){
+    log(`PASS: LI=${sim.li.toFixed(2)} R=${sim.r.toFixed(2)} ΔH=${sim.dh.toFixed(2)}`, 'ok');
+  }
 }
 
 // --- RENDER ---
-
-function drawLine(ctx, p1, p2, color, width) {
+function drawLine(p1, p2, color, lineWidth){
   ctx.beginPath();
   ctx.moveTo(cx + p1.x, cy + p1.y);
   ctx.lineTo(cx + p2.x, cy + p2.y);
   ctx.strokeStyle = color;
-  ctx.lineWidth = width;
+  ctx.lineWidth = lineWidth;
   ctx.stroke();
 }
 
-function render(timestamp) {
-  const dt = 0.016; // Fixed timestep approx
+function render(){
+  const dt = 0.016;
   t += dt;
+
   updateSim(dt);
 
-  // 1. Clear / Trail Effect
-  if (opts.trails) {
-    ctx.fillStyle = 'rgba(6, 7, 11, 0.2)'; // El secreto del "Vértigo": no borrar todo
-    ctx.fillRect(0, 0, width, height);
+  // Trails / clear
+  if(opts.trails){
+    ctx.fillStyle = 'rgba(6, 7, 11, 0.22)';
+    ctx.fillRect(0,0,width,height);
   } else {
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0,0,width,height);
   }
 
-  // Configurar rotaciones basadas en Sigma (Más coherencia = Rotación más alineada/rápida)
-  const speed = 0.2 + (sim.sigma * 2.0); // Velocidad basada en Causal Time
-  const rXY = t * speed * 0.3;
-  const rZW = t * speed * 0.5;
-  const rXW = sim.sigma * 2; // Warp rotation
+  // Rotation speed driven by sigma (más coherencia = más “alineación”)
+  const speed = 0.35 + (sim.sigma * 2.2);
+  const rXY = t * speed * 0.30;
+  const rZW = t * speed * 0.52;
+  const rXW = (sim.sigma * 2.0);
 
-  // Proyectar Vértices
+  // Warp factor driven by |ΔH| (más orden = más warp estable)
+  const warp = Math.min(1.4, Math.abs(sim.dh) * 2.2);
+
+  // Project vertices
   const scale = Math.min(width, height) / 1000;
-  const pVerts = hypercube.vertices.map(v => {
+  const pVerts = hypercube.vertices.map(v=>{
     let rv = v;
-    rv = rotate(rv, rXY, 0, 1); // Rotación base
-    rv = rotate(rv, rZW, 2, 3); // Rotación hiperespacial
-    if (sim.sigma > 0.6) rv = rotate(rv, rXW, 0, 3); // Distorsión por Lock
-    
-    // El "Warp Factor" aumenta con la entropía negativa (orden)
-    const warp = Math.abs(sim.dh) * 2; 
+    rv = rotate(rv, rXY, 0, 1);
+    rv = rotate(rv, rZW, 2, 3);
+    if(sim.sigma > 0.60) rv = rotate(rv, rXW, 0, 3);
     return project(rv, scale, warp);
   });
 
-  // Función interna para dibujar el cubo
-  const drawModel = (colorOffset, lineWidth, blend) => {
-    ctx.globalCompositeOperation = blend;
-    
-    // Brillo Neón
-    ctx.shadowBlur = (sim.sigma * 20) + 5;
-    ctx.shadowColor = colorOffset;
+  // Draw model layers
+  const drawModel = (layer, offsetX, offsetY)=>{
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
 
-    // Dibujar Aristas
-    hypercube.edges.forEach(e => {
+    // glow neon
+    ctx.globalCompositeOperation = layer.blend;
+    ctx.shadowBlur = (sim.sigma * 18) + 6;
+    ctx.shadowColor = layer.shadow;
+
+    hypercube.edges.forEach(e=>{
       const p1 = pVerts[e[0]];
       const p2 = pVerts[e[1]];
-      
-      // Distancia a la cámara para variar opacidad
-      const dist = (p1.depth + p2.depth) / 2;
-      const alpha = Math.max(0.1, 1 / (dist * 0.5));
-      
-      // Color dinámico según estado
-      let col;
-      if (currentStatus === 'LOCKED') col = `rgba(100, 255, 218, ${alpha})`; // Cyan
-      else if (currentStatus === 'SCANNING') col = `rgba(119, 166, 255, ${alpha})`; // Blue
-      else col = `rgba(255, 92, 141, ${alpha})`; // Red/Warn
+      const dist = (p1.depth + p2.depth) * 0.5;
+      const alpha = Math.max(0.08, 1 / (dist * 0.62));
 
-      if (opts.abberation && blend === 'screen') {
-        // Sobreescribir color si es un paso de aberración
-        col = colorOffset.replace('1)', `${alpha})`);
-      }
+      // state colors
+      let baseCol;
+      if(currentStatus === 'PASS') baseCol = rgba(100,255,218, alpha);
+      else if(currentStatus === 'E-VETO') baseCol = rgba(255,92,141, alpha);
+      else baseCol = rgba(119,166,255, alpha);
 
-      drawLine(ctx, p1, p2, col, lineWidth);
+      // layer override (aberration)
+      const col = layer.override ? layer.override(alpha) : baseCol;
+
+      drawLine(p1, p2, col, layer.lw);
     });
-    
-    ctx.shadowBlur = 0; // Reset
+
+    ctx.shadowBlur = 0;
+    ctx.restore();
   };
 
-  // 2. Renderizar Geometría
-  if (opts.abberation && sim.sigma > 0.3) {
-    // Efecto RGB Split (Aberración Cromática)
-    // Dibujar capas desplazadas
-    ctx.save();
-    ctx.translate(-2, -2);
-    drawModel('rgba(255, 0, 0, 1)', 2, 'screen');
-    ctx.restore();
-    
-    ctx.save();
-    ctx.translate(2, 2);
-    drawModel('rgba(0, 255, 255, 1)', 2, 'screen');
-    ctx.restore();
+  // Geometry
+  if(opts.aberration && sim.sigma > 0.32){
+    // red layer
+    drawModel(
+      { blend:'screen', lw:2.0, shadow:'rgba(255,0,0,0.40)', override:(a)=>rgba(255,0,0,a) },
+      -2, -2
+    );
+    // cyan layer
+    drawModel(
+      { blend:'screen', lw:2.0, shadow:'rgba(0,255,255,0.35)', override:(a)=>rgba(0,255,255,a) },
+      2, 2
+    );
+    // main layer (slightly sharper)
+    drawModel(
+      { blend:'source-over', lw:1.6, shadow:'rgba(100,255,218,0.18)', override:null },
+      0, 0
+    );
   } else {
-    drawModel(null, 1.5, 'source-over');
+    drawModel(
+      { blend:'source-over', lw:1.6, shadow:'rgba(119,166,255,0.18)', override:null },
+      0, 0
+    );
   }
 
-  // 3. Renderizar Partículas (Data Dust)
-  if (opts.particles) {
+  // Particles
+  if(opts.particles){
+    ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    particles.forEach(p => {
-      // Física simple 4D rotada
+    const pCol = (currentStatus === 'PASS') ? '#64ffda' : (currentStatus === 'E-VETO' ? '#ff5c8d' : '#77a6ff');
+
+    for(const p of particles){
       let rv = [p.x, p.y, p.z, p.w];
-      rv = rotate(rv, t * 0.2, 0, 3);
-      rv = rotate(rv, t * 0.1, 1, 2);
-      
-      const proj = project(rv, scale, 0);
-      
-      // Dibujar
-      const size = Math.max(0, 3 / proj.depth);
-      ctx.fillStyle = sim.sigma > 0.8 ? '#64ffda' : '#77a6ff';
+      rv = rotate(rv, t*0.20, 0, 3);
+      rv = rotate(rv, t*0.12, 1, 2);
+      const proj = project(rv, Math.min(width,height)/1000, 0);
+
+      const size = Math.max(0.0, 3 / proj.depth);
+      ctx.fillStyle = pCol;
       ctx.beginPath();
       ctx.arc(cx + proj.x, cy + proj.y, size, 0, Math.PI*2);
       ctx.fill();
-    });
+    }
+    ctx.restore();
   }
 
   requestAnimationFrame(render);
 }
 
-// --- INITIALIZATION ---
-
-function resize() {
+// --- RESIZE (FIX: no acumular scale) ---
+function resize(){
   width = canvas.parentElement.offsetWidth;
   height = canvas.parentElement.offsetHeight;
-  // Soporte Retina
+
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
+
+  canvas.width = Math.floor(width * dpr);
+  canvas.height = Math.floor(height * dpr);
+
+  // CRÍTICO: reset transform
+  ctx.setTransform(1,0,0,1,0,0);
   ctx.scale(dpr, dpr);
-  width = width; // usar coords lógicas
-  height = height;
+
   cx = width / 2;
   cy = height / 2;
 }
 window.addEventListener('resize', resize);
 resize();
 
-// Event Listeners for Controls
-document.getElementById('togTrails').onclick = (e) => {
-  opts.trails = !opts.trails;
-  e.target.classList.toggle('on');
-};
-document.getElementById('togAbberation').onclick = (e) => {
-  opts.abberation = !opts.abberation;
-  e.target.classList.toggle('on');
-};
-document.getElementById('togParticles').onclick = (e) => {
-  opts.particles = !opts.particles;
-  e.target.classList.toggle('on');
-};
-document.getElementById('togAuto').onclick = (e) => {
-  opts.auto = !opts.auto;
-  e.target.classList.toggle('on');
-};
+// --- Controls ---
+const togTrails = document.getElementById('togTrails');
+const togAberration = document.getElementById('togAberration');
+const togParticles = document.getElementById('togParticles');
+const togAuto = document.getElementById('togAuto');
 
-document.getElementById('btnInject').onclick = () => {
+togTrails.onclick = (e)=>{ opts.trails = !opts.trails; e.target.classList.toggle('on', opts.trails); log(`Trails = ${opts.trails?'ON':'OFF'}`, 'info'); };
+togAberration.onclick = (e)=>{ opts.aberration = !opts.aberration; e.target.classList.toggle('on', opts.aberration); log(`Aberración = ${opts.aberration?'ON':'OFF'}`, 'info'); };
+togParticles.onclick = (e)=>{ opts.particles = !opts.particles; e.target.classList.toggle('on', opts.particles); log(`Partículas = ${opts.particles?'ON':'OFF'}`, 'info'); };
+togAuto.onclick = (e)=>{ opts.auto = !opts.auto; e.target.classList.toggle('on', opts.auto); log(`Auto = ${opts.auto?'ON':'OFF'}`, 'info'); };
+
+document.getElementById('btnInject').onclick = ()=>{
   sim.targetSigma = 0.98;
   opts.auto = false;
-  setTimeout(() => { opts.auto = true; }, 4000); // Volver a auto después de 4s
-  log('INYECCIÓN MANUAL: Sincronización forzada', 'ok');
+  togAuto.classList.toggle('on', false);
+  log('INYECCIÓN MANUAL: forzando Σ alto (intento de locking)', 'ok');
+
+  setTimeout(()=>{
+    opts.auto = true;
+    togAuto.classList.toggle('on', true);
+    log('Auto reactivado.', 'info');
+  }, 4000);
 };
 
-document.getElementById('btnReset').onclick = () => {
+document.getElementById('btnReset').onclick = ()=>{
   sim.targetSigma = 0.05;
-  sim.dh = 0.5; // Caos
+  sim.dh = 0.50; // caos inmediato
   opts.auto = false;
-  setTimeout(() => { opts.auto = true; }, 2000);
-  log('RESET: Dispersión entrópica', 'bad');
+  togAuto.classList.toggle('on', false);
+  log('RESET: dispersión entrópica + caída de Σ', 'bad');
+
+  setTimeout(()=>{
+    opts.auto = true;
+    togAuto.classList.toggle('on', true);
+    log('Auto reactivado.', 'info');
+  }, 2200);
 };
 
 // Start
 log('Sistema TCDS iniciado.', 'info');
-log('Esperando flujo de eventos...', 'warn');
+log(`KPIs: LI≥${KPI.LImin.toFixed(2)} | R>${KPI.Rmin.toFixed(2)} | ΔH≤${KPI.dHmax.toFixed(2)}`, 'warn');
+setStatus('INIT', 'warn');
 requestAnimationFrame(render);
 
 </script>
 </body>
 </html>
+```0
