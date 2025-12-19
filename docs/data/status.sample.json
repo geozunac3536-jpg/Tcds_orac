@@ -1,0 +1,24 @@
+{
+  "project": "TCDS / Oráculo Sísmico",
+  "updated_utc": "2025-12-18T00:00:00Z",
+  "mode": "LIVE",
+  "station": "AK.PIN.BHZ",
+  "provider": "IRIS",
+  "window": {
+    "start": "2025-12-18T00:00:00Z",
+    "end": "2025-12-18T00:06:00Z"
+  },
+  "metrics": {
+    "LI": 0.92,
+    "R": 0.97,
+    "RMSE_SL": 0.08,
+    "dH": -0.31
+  },
+  "e_veto": true,
+  "decision": "PASS",
+  "reason": "Sigma OK + E-Veto (dH <= -0.2)",
+  "latency_s": 12.4,
+  "links": {
+    "audit_json": "data/status.sample.json"
+  }
+}
