@@ -1,4 +1,0 @@
-numpy
-spacy
-textblob
-matplotlib
